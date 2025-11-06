@@ -1,4 +1,3 @@
-// src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +5,6 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { LoggerService } from '../common/logger/logger.service';
-import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities/user.entity';
 
@@ -35,16 +33,9 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async login(user: any, res: Response) {
+  async login(user: User) {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user);
-
-    res.cookie('refresh_token', user.refresh_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/',
-    });
 
     return {
       user,
@@ -62,7 +53,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  private async generateRefreshToken(user: any): Promise<RefreshToken> {
+  private async generateRefreshToken(user: User): Promise<RefreshToken> {
     const token = this.jwtService.sign(
       { sub: user.id },
       {
@@ -83,43 +74,39 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    try {
-      const tokenEntity = await this.refreshTokenRepository.findOne({
-        where: { token: refreshToken },
-        relations: ['user'],
-      });
+    const tokenEntity = await this.refreshTokenRepository.findOne({
+      where: { token: refreshToken },
+      relations: ['user'],
+    });
 
-      if (
-        !tokenEntity ||
-        tokenEntity.isRevoked ||
-        tokenEntity.expiresAt < new Date()
-      ) {
-        this.logger.error(`Invalid or expired refresh token: ${refreshToken}`);
-        throw new UnauthorizedException('Invalid or expired refresh token');
-      }
-
-      const decoded = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret',
-      });
-
-      const user = await this.usersService.findById(decoded.sub);
-
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-
-      const newAccessToken = this.generateAccessToken(user);
-
-      this.logger.info({
-        message: `Access token refreshed for user: ${user.email}`,
-        userId: user.id,
-      });
-
-      return { access_token: newAccessToken };
-    } catch (error) {
-      this.logger.error(`Refresh token error: ${error.message}`, error.stack);
-      throw new UnauthorizedException('Invalid refresh token');
+    if (
+      !tokenEntity ||
+      tokenEntity.isRevoked ||
+      tokenEntity.expiresAt < new Date()
+    ) {
+      this.logger.error(`Invalid or expired refresh token: ${refreshToken}`);
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
+
+    // Explicitly type the decoded token
+    const decoded = this.jwtService.verify<{ sub: number }>(refreshToken, {
+      secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+    });
+
+    const user = await this.usersService.findById(decoded.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const newAccessToken = this.generateAccessToken(user);
+
+    this.logger.info({
+      message: `Access token refreshed for user: ${user.email}`,
+      userId: user.id,
+    });
+
+    return { access_token: newAccessToken };
   }
 
   async revokeRefreshToken(refreshToken: string) {
