@@ -7,7 +7,7 @@ import {
     Box,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { ActivityStatus } from '../types';
+import { ActivityStatus } from '../../types';
 import type { ViewMode } from 'gantt-task-react';
 import { GanttChartView } from './GanttChartView';
 
@@ -73,6 +73,7 @@ function GanttChartHeader({
                             variant="outlined"
                             onClick={handleOpenEditForm}
                             sx={styles.editBtn}
+
                         >
                             Edit
                         </Button>
@@ -80,6 +81,8 @@ function GanttChartHeader({
                             variant="outlined"
                             onClick={() => handleDeleteActivity(String(selectedActivity.id))}
                             sx={styles.deleteBtn}
+                            color='error'
+
                         >
                             Delete
                         </Button>

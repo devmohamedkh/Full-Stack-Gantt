@@ -3,13 +3,13 @@ import {
     Container,
 } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
-import { GanttChart } from '../../components/GanttChart';
-import { ActivityForm } from '../../components/ActivityForm';
-import { ActivityDetails } from '../../components/ActivityDetails';
+import { GanttChart } from './GanttChart';
+import { ActivityForm } from './ActivityForm';
+import { ActivityDetails } from './ActivityDetails';
 import Header from '../../components/Header';
 import { useActivities } from '../../Hooks/useActivities';
 import { LoaderWithErrorHandling } from '../../components/LoaderWithErrorHandling';
-import GanttChartHeader from '../../components/GanttChartHeader';
+import GanttChartHeader from './GanttChartHeader';
 import NoDataFound from '../../components/NoDataFound';
 
 

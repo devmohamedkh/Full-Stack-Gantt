@@ -8,15 +8,15 @@ import {
 
 import { Avatar, IconButton, Menu, MenuItem, Typography as MuiTypography, Box } from '@mui/material';
 import { useState, type MouseEvent } from 'react';
+import { useAuth } from '../context';
 
 
 
 function Header() {
     const muiTheme = useTheme();
     const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+    const { user, logout } = useAuth()
 
-
-    const USERNAME = "John Doe";
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -30,6 +30,7 @@ function Header() {
     };
 
     const handleSignOut = () => {
+        logout()
         handleMenuClose();
 
     };
@@ -56,7 +57,7 @@ function Header() {
                         aria-expanded={open ? 'true' : undefined}
                     >
                         <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}>
-                            {USERNAME.split(' ').map(word => word[0]).join('').toUpperCase()}
+                            {user?.email.split(' ').map(word => word[0]).join('').toUpperCase()}
                         </Avatar>
                     </IconButton>
                     <Menu
@@ -82,7 +83,7 @@ function Header() {
                     >
                         <MenuItem disabled>
                             <MuiTypography variant="subtitle1" color="text.primary">
-                                {USERNAME}
+                                {user?.email}
                             </MuiTypography>
                         </MenuItem>
                         <MenuItem onClick={handleSignOut}>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Activity, ActivityStatus } from "../types";
 import { ViewMode, type Task } from "gantt-task-react";
-import { activitiesApi, type CreateActivityDto, type UpdateActivityDto } from "../services/api";
+import { activitiesApi, type CreateActivityDto, type UpdateActivityDto } from "../services/activitiesApi";
 import { toast } from "react-toastify";
 
 export function useActivities() {

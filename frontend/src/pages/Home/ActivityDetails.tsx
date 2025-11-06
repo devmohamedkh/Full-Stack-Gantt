@@ -1,7 +1,7 @@
 import { Drawer, Box, Typography, Chip, Divider, IconButton, Button } from '@mui/material';
 import { Close as CloseIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { type Task } from 'gantt-task-react';
-import { type Activity } from '../types';
+import { type Activity } from '../../types';
 
 interface ActivityDetailsProps {
   open: boolean;

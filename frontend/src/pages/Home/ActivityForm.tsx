@@ -12,8 +12,8 @@ import {
   Slider,
   Typography,
 } from '@mui/material';
-import { type Activity, ActivityStatus, ActivityType } from '../types';
-import { type CreateActivityDto, type UpdateActivityDto } from '../services/api';
+import { type Activity, ActivityStatus, ActivityType } from '../../types';
+import { type CreateActivityDto, type UpdateActivityDto } from '../../services/activitiesApi';
 
 interface ActivityFormProps {
   open: boolean;

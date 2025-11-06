@@ -38,7 +38,7 @@ export class LoggerService {
   }
 
   info(message: object) {
-    this.logger.info(message);
+    this.logger.info(JSON.stringify(message));
   }
 
   error(message: string, stack?: string) {

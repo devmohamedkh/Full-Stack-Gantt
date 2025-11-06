@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Gantt, type Task, ViewMode } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
 
-import type { Activity } from '../types';
+import type { Activity } from '../../types';
 import { GanttChartTooltipContent } from './GanttChartTooltipContent';
 
 interface GanttChartProps {
@@ -82,8 +82,6 @@ export const GanttChart = ({
   };
 
   return (
-
-
     <Gantt
       tasks={tasks}
       viewMode={viewMode}
