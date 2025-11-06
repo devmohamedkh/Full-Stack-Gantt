@@ -45,26 +45,24 @@ function Home() {
             <Header />
 
             <Container maxWidth={false} sx={{ flexGrow: 1, py: 3 }}>
-                {loading && activities.length === 0 ? (
-                    <Box sx={styles.loading}>
-                        <Typography>Loading activities...</Typography>
-                    </Box>
-                ) : activities.length === 0 ? (
+                <GanttChartHeader
+                    onViewModeChange={setView}
+                    viewMode={view}
+                    handleDeleteActivity={handleDeleteActivity}
+                    handleOpenCreateForm={handleOpenCreateForm}
+                    handleOpenEditForm={handleOpenEditForm}
+                    selectedActivity={selectedActivity}
+                    setStatusFilter={setStatusFilter}
+                    statusFilter={statusFilter}
+                    showGanttChartView={activities.length !== 0}
+                />
+                {!loading && activities.length === 0 ? (
                     <Box sx={styles.noDataFound}>
-                        <Typography>No data found.</Typography>
+                        <Typography>No data found you can add new activities.</Typography>
                     </Box>
                 ) : (
                     <>
-                        <GanttChartHeader
-                            onViewModeChange={setView}
-                            viewMode={view}
-                            handleDeleteActivity={handleDeleteActivity}
-                            handleOpenCreateForm={handleOpenCreateForm}
-                            handleOpenEditForm={handleOpenEditForm}
-                            selectedActivity={selectedActivity}
-                            setStatusFilter={setStatusFilter}
-                            statusFilter={statusFilter}
-                        />
+
                         <GanttChart
                             activities={activities}
                             onTaskChange={handleTaskChange}

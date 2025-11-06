@@ -36,7 +36,6 @@ export function useActivities() {
     const handleCreateActivity = async (data: CreateActivityDto) => {
         try {
             setLoading(true)
-            await new Promise(resolve => setTimeout(resolve, 5000));
             await activitiesApi.create(data);
             toast.success('Activity created successfully');
             loadActivities();

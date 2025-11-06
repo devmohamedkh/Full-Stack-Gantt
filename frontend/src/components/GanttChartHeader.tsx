@@ -20,6 +20,7 @@ type GanttChartHeaderProps = {
     selectedActivity: { id: number } | null;
     onViewModeChange: (viewMode: ViewMode) => void;
     viewMode?: ViewMode;
+    showGanttChartView: boolean;
 };
 
 function GanttChartHeader({
@@ -30,7 +31,8 @@ function GanttChartHeader({
     setStatusFilter,
     selectedActivity,
     onViewModeChange,
-    viewMode
+    viewMode,
+    showGanttChartView
 }: GanttChartHeaderProps) {
 
     return (
@@ -84,10 +86,13 @@ function GanttChartHeader({
                     </Box>
                 )}
             </Box>
-            <GanttChartView
-                onViewModeChange={onViewModeChange}
-                viewMode={viewMode}
-            />
+
+            {showGanttChartView &&
+                <GanttChartView
+                    onViewModeChange={onViewModeChange}
+                    viewMode={viewMode}
+                />
+            }
 
         </Box>
     );

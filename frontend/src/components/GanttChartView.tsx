@@ -36,7 +36,7 @@ export const GanttChartView: React.FC<GanttChartViewProps> = ({
       gap={3}
       p={2}
       bgcolor={theme.palette.background.paper}
-      sx={{ borderRadius: 2, boxShadow: 1 }}
+      sx={{ borderRadius: 2 }}
       className="ViewContainer"
     >
       <ButtonGroup variant="outlined" color="primary" size="small">
