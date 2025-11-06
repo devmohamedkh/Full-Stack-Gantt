@@ -1,6 +1,5 @@
 import {
     Box,
-    Typography,
     Container,
 } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,7 +10,7 @@ import Header from '../../components/Header';
 import { useActivities } from '../../Hooks/useActivities';
 import { LoaderWithErrorHandling } from '../../components/LoaderWithErrorHandling';
 import GanttChartHeader from '../../components/GanttChartHeader';
-
+import NoDataFound from '../../components/NoDataFound';
 
 
 function Home() {
@@ -56,52 +55,50 @@ function Home() {
                     statusFilter={statusFilter}
                     showGanttChartView={activities.length !== 0}
                 />
-                {!loading && activities.length === 0 ? (
-                    <Box sx={styles.noDataFound}>
-                        <Typography>No data found you can add new activities.</Typography>
-                    </Box>
-                ) : (
-                    <>
-
-                        <GanttChart
-                            activities={activities}
-                            onTaskChange={handleTaskChange}
-                            onTaskDelete={handleDeleteActivity}
-                            handleDblClick={handleTaskDC}
-                            onTaskClick={handleTaskClick}
-                            selectedTask={selectedTask}
-                            onTaskSelect={() => { }}
-                            onExpanderClick={() => { }}
-                            viewMode={view}
-                        />
-                    </>
+                {activities.length !== 0 && (
+                    <GanttChart
+                        activities={activities}
+                        onTaskChange={handleTaskChange}
+                        onTaskDelete={handleDeleteActivity}
+                        handleDblClick={handleTaskDC}
+                        onTaskClick={handleTaskClick}
+                        selectedTask={selectedTask}
+                        onTaskSelect={() => { }}
+                        onExpanderClick={() => { }}
+                        viewMode={view}
+                    />
                 )}
+
+
+                <ActivityForm
+                    open={activityFormModalStatus.status}
+                    onClose={() => {
+                        setActivityFormModalStatus({ status: false, mode: 'create' })
+                        setSelectedActivity(null);
+                    }}
+                    onSubmit={handleFormSubmit}
+                    activity={selectedActivity}
+                    mode={activityFormModalStatus.mode}
+                />
+
+                <ActivityDetails
+                    open={detailsOpen}
+                    onClose={() => {
+                        setDetailsOpen(false);
+                        setSelectedTask(null);
+                        setSelectedActivity(null);
+                    }}
+                    task={selectedTask}
+                    activity={selectedActivity}
+                    onDelete={handleDeleteActivity}
+                />
+
+                <LoaderWithErrorHandling loading={loading} />
+                <NoDataFound
+                    show={!loading && activities.length === 0}
+                    message='No data found you can add new activities.'
+                />
             </Container>
-
-            <ActivityForm
-                open={activityFormModalStatus.status}
-                onClose={() => {
-                    setActivityFormModalStatus({ status: false, mode: 'create' })
-                    setSelectedActivity(null);
-                }}
-                onSubmit={handleFormSubmit}
-                activity={selectedActivity}
-                mode={activityFormModalStatus.mode}
-            />
-
-            <ActivityDetails
-                open={detailsOpen}
-                onClose={() => {
-                    setDetailsOpen(false);
-                    setSelectedTask(null);
-                    setSelectedActivity(null);
-                }}
-                task={selectedTask}
-                activity={selectedActivity}
-                onDelete={handleDeleteActivity}
-            />
-
-            <LoaderWithErrorHandling loading={loading} />
 
         </Box>
     );

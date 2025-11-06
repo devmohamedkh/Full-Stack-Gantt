@@ -99,14 +99,11 @@ function Header() {
 
 const styles = {
     toolbar: {
-        flexDirection: { xs: 'column', md: 'row' },
-        alignItems: { xs: 'flex-end', md: 'center' },
         gap: { xs: 2, md: 0 },
     },
     title: {
         fontWeight: 700,
         mb: { xs: 1, md: 0 },
-        textAlign: { xs: 'center', md: 'right' },
         width: { xs: '100%', md: 'auto' },
         mr: { xs: 0, md: 'auto' },
     },
