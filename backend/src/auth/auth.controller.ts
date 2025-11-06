@@ -40,14 +40,22 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body('refresh-token') { refreshToken }: RefreshTokenDto) {
+  @ApiBody({
+    type: RefreshTokenDto,
+    description: 'Provide the refresh token to obtain a new access token',
+  })
+  async refresh(@Body() { refreshToken }: RefreshTokenDto) {
     const result = await this.authService.refreshToken(refreshToken);
     return result;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Body('refresh-token') { refreshToken }: RefreshTokenDto) {
+  @ApiBody({
+    type: RefreshTokenDto,
+    description: 'Provide the refresh token to log out and revoke it',
+  })
+  async logout(@Body() { refreshToken }: RefreshTokenDto) {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token is required');
     }
