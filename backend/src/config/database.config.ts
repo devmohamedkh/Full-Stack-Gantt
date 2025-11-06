@@ -1,0 +1,27 @@
+import { registerAs } from '@nestjs/config';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+
+export default registerAs(
+  'database',
+  (): TypeOrmModuleOptions => ({
+    type: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: Number.parseInt(process.env.DB_PORT!, 10) || 5432,
+    username: process.env.DB_USERNAME || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    database: process.env.DB_NAME || 'gantt_db',
+    autoLoadEntities: true,
+    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    synchronize: true,
+
+    // migrations: ['dist/migrations/*.js'],
+    // migrationsRun: process.env.RUN_MIGRATIONS === 'true',
+    // synchronize:
+    //   process.env.DB_SYNCHRONIZE === 'true' ||
+    //   (process.env.NODE_ENV !== 'production' &&
+    //     process.env.RUN_MIGRATIONS !== 'true'), // Auto-sync schema in development unless migrations are enabled
+    // logging:
+    //   process.env.NODE_ENV === 'development' ||
+    //   process.env.DB_LOGGING === 'true',
+  }),
+);
