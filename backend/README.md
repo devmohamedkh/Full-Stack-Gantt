@@ -105,23 +105,7 @@ CREATE DATABASE gantt_db;
 
 3. **Environment Configuration**
 
-Create a `.env` file in the `backend` directory:
-
-```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=gantt_db
-
-# Application Configuration
-PORT=3000
-NODE_ENV=development
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:3001
-```
+Copy `.env.example` file in the `backend` directory and add your env.
 
 4. **Run the Application**
 
@@ -144,7 +128,7 @@ The API will be available at `http://localhost:3000/api`
 
 Once the application is running, you can access the interactive Swagger documentation at:
 
-**http://localhost:3000/api/docs**
+**http://localhost:3000/docs**
 
 The Swagger UI provides:
 
@@ -155,103 +139,6 @@ The Swagger UI provides:
 - Try-it-out functionality for all endpoints
 
 You can test all API endpoints directly from the Swagger interface without needing external tools like Postman.
-
-## API Endpoints
-
-### Activities
-
-- `GET /api/activities` - Get all activities
-- `GET /api/activities?status=todo` - Get activities filtered by status
-- `GET /api/activities/:id` - Get a single activity
-- `POST /api/activities` - Create a new activity
-- `PATCH /api/activities/:id` - Update an activity
-- `DELETE /api/activities/:id` - Delete an activity
-
-### Activity Status Values
-
-- `todo`
-- `in_progress`
-- `completed`
-- `blocked`
-
-### Activity Type Values
-
-- `task`
-- `project`
-- `milestone`
-
-## Request/Response Examples
-
-### Create Activity
-
-**Request:**
-
-```json
-POST /api/activities
-{
-  "name": "Design UI Mockups",
-  "description": "Create wireframes and mockups for the dashboard",
-  "start": "2024-01-15T00:00:00Z",
-  "end": "2024-01-20T23:59:59Z",
-  "progress": 0,
-  "status": "todo",
-  "type": "task",
-  "color": "#3498db",
-  "order": 0
-}
-```
-
-**Response:**
-
-```json
-{
-  "id": "uuid",
-  "name": "Design UI Mockups",
-  "description": "Create wireframes and mockups for the dashboard",
-  "start": "2024-01-15T00:00:00.000Z",
-  "end": "2024-01-20T23:59:59.000Z",
-  "progress": 0,
-  "status": "todo",
-  "type": "task",
-  "color": "#3498db",
-  "parentId": null,
-  "order": 0,
-  "createdAt": "2024-01-10T12:00:00.000Z",
-  "updatedAt": "2024-01-10T12:00:00.000Z"
-}
-```
-
-### Update Activity (e.g., drag/resize)
-
-**Request:**
-
-```json
-PATCH /api/activities/:id
-{
-  "start": "2024-01-16T00:00:00Z",
-  "end": "2024-01-22T23:59:59Z"
-}
-```
-
-## Data Model
-
-### Activity Entity
-
-- `id` (UUID) - Primary key
-- `name` (string) - Activity name
-- `description` (text, optional) - Activity description
-- `start` (timestamp) - Start date
-- `end` (timestamp) - End date
-- `progress` (integer, 0-100) - Progress percentage
-- `status` (enum) - Activity status
-- `type` (enum) - Activity type
-- `color` (string, optional) - Display color
-- `parentId` (UUID, optional) - Parent activity for hierarchical tasks
-- `order` (integer) - Display order
-- `createdAt` (timestamp) - Creation timestamp
-- `updatedAt` (timestamp) - Last update timestamp
-
-## Development
 
 ### Run Tests
 
