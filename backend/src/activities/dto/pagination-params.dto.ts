@@ -8,7 +8,6 @@ export class ActivityPaginationParamsDto extends PaginationParamsDto {
     description: 'Filter activities by status',
     required: false,
     enum: ActivityStatus,
-    example: 'IN_PROGRESS', // example value; adjust according to enum
   })
   @IsOptional()
   status?: ActivityStatus;

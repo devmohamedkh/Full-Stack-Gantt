@@ -69,7 +69,7 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Get a single activity by ID' })
   @ApiParam({
     name: 'id',
-    description: 'Activity UUID',
+    description: 'Activity id',
   })
   @ApiOkResponse({
     description: 'Activity retrieved successfully',
@@ -109,7 +109,7 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Delete an activity' })
   @ApiParam({
     name: 'id',
-    description: 'Activity UUID',
+    description: 'Activity id',
   })
   @ApiNoContentResponse({ description: 'Activity deleted successfully' })
   @ApiNotFoundResponse({ description: 'Activity not found' })
