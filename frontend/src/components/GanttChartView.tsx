@@ -31,7 +31,8 @@ export const GanttChartView: React.FC<GanttChartViewProps> = ({
   return (
     <Box
       display="flex"
-      alignItems="center"
+      alignItems="end"
+      justifyContent={'end'}
       gap={3}
       p={2}
       bgcolor={theme.palette.background.paper}
@@ -42,6 +43,9 @@ export const GanttChartView: React.FC<GanttChartViewProps> = ({
         {VIEW_MODES.map(({ mode, label }) => (
           <Tooltip title={label} arrow key={label}>
             <Button
+              style={{
+                height: '36px'
+              }}
               variant={viewMode === mode ? "contained" : "outlined"}
               onClick={() => onViewModeChange(mode)}>{label}</Button>
           </Tooltip>

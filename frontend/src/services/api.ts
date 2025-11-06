@@ -50,7 +50,6 @@ export interface PaginationParams {
     limit?: number;
 }
 
-// Raw activity data from API (with string dates)
 interface RawActivity {
     id: number;
     name: string;
@@ -67,7 +66,6 @@ interface RawActivity {
     updatedAt: string;
 }
 
-// Paginated response structure
 interface PaginatedResponse<T> {
     data: T[];
     total: number;
@@ -83,7 +81,6 @@ const api = axios.create({
     },
 });
 
-// Transform date strings to Date objects
 const transformActivity = (activity: RawActivity): Activity => {
     return {
         ...activity,

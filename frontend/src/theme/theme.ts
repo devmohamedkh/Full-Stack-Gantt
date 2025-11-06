@@ -56,10 +56,30 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiCssBaseline: {
+            styleOverrides: {
+                body: {
+                    /* Hide scrollbar for Firefox */
+                    scrollbarWidth: "none",
+                    /* Hide scrollbar for IE, Edge */
+                    msOverflowStyle: "none",
+                    /* Hide scrollbar for Chrome, Safari and Opera */
+                    "&::-webkit-scrollbar": {
+                        width: "0px",
+                        height: "0px",
+                        background: "transparent",
+                        display: "none",
+                    },
+
+                    "&-ms-overflow-style:": {
+                        display: "none",
+                    },
+                },
+            },
+        },
     },
 });
 
-// Task color palette matching the image
 export const taskColors = {
     planning: "#F7C548", // Orange-yellow
     packaging: "#C0E060", // Light green-yellow

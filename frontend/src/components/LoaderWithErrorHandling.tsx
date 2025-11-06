@@ -39,7 +39,7 @@ export const LoaderWithErrorHandling: React.FC<LoaderWithErrorHandlingProps> = (
             justifyContent="center"
             style={{
                 ...style,
-                opacity: 0.85  // Add opacity here
+                opacity: 0.85
             }}
         >
             <Circles
