@@ -15,7 +15,7 @@ export class ActivityResponseDto {
   @ApiPropertyOptional({
     description: 'Activity description',
   })
-  description: string | null;
+  description: string;
 
   @ApiProperty({
     description: 'Start date and time',
@@ -49,7 +49,7 @@ export class ActivityResponseDto {
   @ApiPropertyOptional({
     description: 'Display color (hex code)',
   })
-  color: string | null;
+  color: string;
 
   @ApiPropertyOptional({
     description: 'Array of activity IDs that this task depends on',
