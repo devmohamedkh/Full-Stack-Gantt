@@ -4,6 +4,7 @@ import {
     type CreateActivityDto,
     type PaginatedResponse,
     type PaginationParams,
+    type PickedActivityNameId,
     type RawActivity,
     type UpdateActivityDto,
 } from "../types";
@@ -55,5 +56,18 @@ export const activitiesApi = {
 
     delete: async (id: number): Promise<void> => {
         await axiosInstance.delete(`/activities/${id}`);
+    },
+
+    lockups: async (
+        excludedIds?: number[]
+    ): Promise<PickedActivityNameId[]> => {
+        const response = await axiosInstance.get("/activities/lockups", {
+            params:
+                excludedIds && excludedIds.length > 0
+                    ? { excludedIds: excludedIds.join(",") }
+                    : undefined,
+        });
+
+        return response.data;
     },
 };

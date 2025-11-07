@@ -26,6 +26,8 @@ export interface Activity {
     updatedAt: Date;
 }
 
+export type PickedActivityNameId = Pick<Activity, "id" | "name">;
+
 export interface CreateActivityDto {
     name: string;
     description?: string;

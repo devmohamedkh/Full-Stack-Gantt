@@ -36,6 +36,7 @@ function Home() {
         handleOpenCreateForm,
         handleOpenEditForm,
         handleFormSubmit,
+        getActivityLockups
     } = useActivities();
 
 
@@ -79,6 +80,7 @@ function Home() {
                     onSubmit={handleFormSubmit}
                     activity={selectedActivity}
                     mode={activityFormModalStatus.mode}
+                    getActivityLockups={getActivityLockups}
                 />
 
                 <ActivityDetails

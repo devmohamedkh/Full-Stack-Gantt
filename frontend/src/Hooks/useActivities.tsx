@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { Activity, ActivityStatus } from "../types";
+import type { Activity, ActivityStatus, CreateActivityDto, PickedActivityNameId, UpdateActivityDto } from "../types";
 import { ViewMode, type Task } from "gantt-task-react";
-import { activitiesApi, type CreateActivityDto, type UpdateActivityDto } from "../services/activitiesApi";
+import { activitiesApi } from "../services/activitiesApi";
 import { toast } from "react-toastify";
 
 export function useActivities() {
@@ -137,6 +137,14 @@ export function useActivities() {
         }
     };
 
+
+    const getActivityLockups = async (excludedIds?: number[]): Promise<PickedActivityNameId[]> => {
+
+        const lockups = await activitiesApi.lockups(excludedIds)
+
+        return lockups
+    };
+
     return {
         activities,
         loading,
@@ -161,5 +169,6 @@ export function useActivities() {
         handleOpenCreateForm,
         handleOpenEditForm,
         handleFormSubmit,
+        getActivityLockups
     };
 }

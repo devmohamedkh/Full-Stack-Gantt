@@ -1,11 +1,10 @@
 import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
-import Cookies from "js-cookie";
 import { authApi } from "../services";
 import type { AuthUser } from "../types";
+import { CookiesService } from "../services/cookiesService";
 
 interface AuthContextType {
     user: AuthUser | null;
-    token: string | null;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     loading: boolean;
@@ -15,20 +14,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<AuthUser | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const cookieToken = Cookies.get("token");
-        const cookieUser = Cookies.get("user");
+        setLoading(true);
+        const cookieToken = CookiesService.getToken();
+        const cookieUser = CookiesService.getUser();
+
+
         if (cookieToken && cookieUser) {
-            setToken(cookieToken);
-            try {
-                const parsedUser: AuthUser = JSON.parse(cookieUser);
-                setUser(parsedUser);
-            } catch {
-                setUser(null);
-            }
+            setUser(cookieUser);
         }
         setLoading(false);
     }, []);
@@ -37,14 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         try {
             const res = await authApi.login({ email, password });
-            const { access_token, refresh_token, user: userInfo } = res;
-
-            Cookies.set("token", access_token, { expires: 7, path: "/", sameSite: "lax" });
-            Cookies.set("refresh_token", refresh_token, { expires: 7, path: "/", sameSite: "lax", secure: true });
-            Cookies.set("user", JSON.stringify(userInfo), { expires: 7, path: "/", sameSite: "lax" });
-
-            setUser(userInfo);
-            setToken(access_token);
+            CookiesService.setSession(res)
+            setUser(res.user);
         } finally {
             setLoading(false);
         }
@@ -53,19 +42,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         setLoading(true);
         try {
-            authApi.logout();
+
+            await authApi.logout({ refreshToken: CookiesService.getRefreshToken()! });
         } finally {
             setUser(null);
-            setToken(null);
-            Cookies.remove("token", { path: "/" });
-            Cookies.remove("user", { path: "/" });
-            Cookies.remove("refresh_token", { path: "/" });
+            CookiesService.clear()
             setLoading(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

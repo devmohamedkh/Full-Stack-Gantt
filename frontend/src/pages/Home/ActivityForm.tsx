@@ -1,4 +1,4 @@
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, FastField } from 'formik';
 import * as Yup from 'yup';
 import {
   Dialog,
@@ -11,9 +11,52 @@ import {
   Box,
   Slider,
   Typography,
+  Autocomplete,
+  CircularProgress,
 } from '@mui/material';
-import { type Activity, ActivityStatus, ActivityType } from '../../types';
-import { type CreateActivityDto, type UpdateActivityDto } from '../../services/activitiesApi';
+import {
+  type Activity,
+  ActivityStatus,
+  ActivityType,
+  type PickedActivityNameId,
+} from '../../types';
+import { type CreateActivityDto, type UpdateActivityDto } from '../../types';
+import { useEffect, useState } from 'react';
+
+const validationSchema = Yup.object({
+  name: Yup.string().required('Name is required').max(255, 'Must be under 255 characters'),
+  description: Yup.string().max(5000, 'Must be under 5000 characters'),
+  type: Yup.string()
+    .oneOf([ActivityType.TASK, ActivityType.MILESTONE])
+    .required('Type is required'),
+  status: Yup.string()
+    .oneOf([
+      ActivityStatus.TODO,
+      ActivityStatus.IN_PROGRESS,
+      ActivityStatus.COMPLETED,
+      ActivityStatus.BLOCKED,
+    ])
+    .required('Status is required'),
+  start: Yup.date().required('Start date is required'),
+  end: Yup.date()
+    .required('End date is required')
+    .test('is-after-start', 'End must be after start', function (value) {
+      const { start } = this.parent;
+      return !start || !value || new Date(value) > new Date(start);
+    }),
+  progress: Yup.number().min(0).max(100).required('Progress is required'),
+  color: Yup.string()
+    .matches(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color (e.g., #60C0E0)')
+    .nullable(),
+  dependencies: Yup.array()
+    .of(
+      Yup.object({
+        id: Yup.number().required(),
+        name: Yup.string().required(),
+      })
+    )
+    .nullable(),
+});
 
 interface ActivityFormProps {
   open: boolean;
@@ -21,39 +64,8 @@ interface ActivityFormProps {
   onSubmit: (data: CreateActivityDto | UpdateActivityDto) => Promise<void>;
   activity?: Activity | null;
   mode: 'create' | 'edit';
+  getActivityLockups: (excludedIds?: number[]) => Promise<PickedActivityNameId[]>;
 }
-
-// Validation schema
-const validationSchema = Yup.object({
-  name: Yup.string()
-    .required('Name is required')
-    .max(255, 'Name must be less than 255 characters'),
-  description: Yup.string().max(5000, 'Description must be less than 5000 characters'),
-  type: Yup.string()
-    .oneOf([ActivityType.TASK, ActivityType.MILESTONE], 'Invalid type')
-    .required('Type is required'),
-  status: Yup.string()
-    .oneOf(
-      [ActivityStatus.TODO, ActivityStatus.IN_PROGRESS, ActivityStatus.COMPLETED, ActivityStatus.BLOCKED],
-      'Invalid status'
-    )
-    .required('Status is required'),
-  start: Yup.string().required('Start date is required'),
-  end: Yup.string()
-    .required('End date is required')
-    .test('is-after-start', 'End date must be after start date', function (value) {
-      const { start } = this.parent;
-      if (!value || !start) return true;
-      return new Date(value) > new Date(start);
-    }),
-  progress: Yup.number()
-    .min(0, 'Progress must be between 0 and 100')
-    .max(100, 'Progress must be between 0 and 100')
-    .required('Progress is required'),
-  color: Yup.string()
-    .matches(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex code (e.g., #60C0E0)')
-    .nullable(),
-});
 
 export const ActivityForm = ({
   open,
@@ -61,48 +73,60 @@ export const ActivityForm = ({
   onSubmit,
   activity,
   mode,
+  getActivityLockups,
 }: ActivityFormProps) => {
-  const formatDateForInput = (date: Date | string) => {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toISOString().slice(0, 16);
-  };
+  const [lockups, setLockups] = useState<PickedActivityNameId[]>([]);
+  const [loadingLockups, setLoadingLockups] = useState(false);
+
+  const formatDateForInput = (date: Date | string) =>
+    new Date(date).toISOString().slice(0, 16);
+
+  // ✅ Fetch dependencies once dialog opens
+  useEffect(() => {
+    if (open) {
+      setLoadingLockups(true);
+      const excludedIds = mode === 'edit' && activity?.id ? [activity?.id] : [];
+      getActivityLockups(excludedIds)
+        .then(setLockups)
+        .finally(() => setLoadingLockups(false));
+    }
+  }, [open, getActivityLockups, mode, activity?.id]);
 
   const initialValues = {
     name: activity?.name || '',
     description: activity?.description || '',
     type: activity?.type || ActivityType.TASK,
     status: activity?.status || ActivityStatus.TODO,
-    start: activity
-      ? formatDateForInput(activity.start)
-      : formatDateForInput(new Date()),
+    start: activity ? formatDateForInput(activity.start) : formatDateForInput(new Date()),
     end: activity
       ? formatDateForInput(activity.end)
       : formatDateForInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
-    progress: activity?.progress || 0,
+    progress: activity?.progress ?? 0,
     color: activity?.color || '',
+    dependencies: activity
+      ? lockups.filter(lockup =>
+        activity.dependencies?.some((dep: number) => dep === lockup.id)
+      )
+      : [],
   };
 
   const handleSubmit = async (
     values: typeof initialValues,
-    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    helpers: { setSubmitting: (submitting: boolean) => void }
   ) => {
     try {
       const data = {
-        name: values.name,
-        description: values.description || undefined,
+        ...values,
         start: new Date(values.start).toISOString(),
         end: new Date(values.end).toISOString(),
-        type: values.type as ActivityType,
-        status: values.status as ActivityStatus,
-        progress: values.progress,
-        color: values.color || undefined,
+        dependencies: values.dependencies.map((dep: PickedActivityNameId) => dep.id),
       };
       await onSubmit(data);
       onClose();
-    } catch (error) {
-      console.error('Form submission error:', error);
+    } catch (err) {
+      console.error('Submission error:', err);
     } finally {
-      setSubmitting(false);
+      helpers.setSubmitting(false);
     }
   };
 
@@ -113,100 +137,130 @@ export const ActivityForm = ({
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
+        validateOnChange={false}
       >
-        {({ values, errors, touched, handleBlur, setFieldValue, isSubmitting }) => (
+        {({ values, errors, touched, setFieldValue, isSubmitting }) => (
           <Form>
             <DialogTitle>
               {mode === 'create' ? 'Create New Activity' : 'Edit Activity'}
             </DialogTitle>
+
             <DialogContent>
               <Box sx={styles.formBox}>
-                <Field
+                {/* Name */}
+                <FastField
                   as={TextField}
                   name="name"
                   label="Name"
-                  required
                   fullWidth
-                  variant="outlined"
-                  error={touched.name && !!errors.name}
+                  required
+                  error={touched.name && Boolean(errors.name)}
                   helperText={touched.name && errors.name}
                 />
 
-                <Field
+                {/* Description */}
+                <FastField
                   as={TextField}
                   name="description"
                   label="Description"
                   fullWidth
                   multiline
                   rows={3}
-                  variant="outlined"
-                  error={touched.description && !!errors.description}
+                  error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
                 />
 
-                <Field
+                {/* Type */}
+                <FastField
                   as={TextField}
                   name="type"
                   label="Type"
                   select
                   fullWidth
-                  variant="outlined"
-                  error={touched.type && !!errors.type}
+                  error={touched.type && Boolean(errors.type)}
                   helperText={touched.type && errors.type}
                 >
                   <MenuItem value={ActivityType.TASK}>Task</MenuItem>
                   <MenuItem value={ActivityType.MILESTONE}>Milestone</MenuItem>
-                </Field>
+                </FastField>
 
-                <Field
+                {/* Status */}
+                <FastField
                   as={TextField}
                   name="status"
                   label="Status"
                   select
                   fullWidth
-                  variant="outlined"
-                  error={touched.status && !!errors.status}
+                  error={touched.status && Boolean(errors.status)}
                   helperText={touched.status && errors.status}
                 >
-                  <MenuItem value={ActivityStatus.TODO}>To Do</MenuItem>
-                  <MenuItem value={ActivityStatus.IN_PROGRESS}>In Progress</MenuItem>
-                  <MenuItem value={ActivityStatus.COMPLETED}>Completed</MenuItem>
-                  <MenuItem value={ActivityStatus.BLOCKED}>Blocked</MenuItem>
-                </Field>
+                  {Object.values(ActivityStatus).map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status.replace('_', ' ')}
+                    </MenuItem>
+                  ))}
+                </FastField>
 
-                <Field
+                {/* Dates */}
+                <FastField
                   as={TextField}
                   name="start"
                   label="Start Date"
                   type="datetime-local"
-                  required
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  variant="outlined"
-                  error={touched.start && !!errors.start}
+                  error={touched.start && Boolean(errors.start)}
                   helperText={touched.start && errors.start}
                 />
 
-                <Field
+                <FastField
                   as={TextField}
                   name="end"
                   label="End Date"
                   type="datetime-local"
-                  required
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  variant="outlined"
-                  error={touched.end && !!errors.end}
+                  error={touched.end && Boolean(errors.end)}
                   helperText={touched.end && errors.end}
                 />
 
-                <Box >
+                <Autocomplete
+                  multiple
+                  disableCloseOnSelect
+                  options={lockups}
+                  loading={loadingLockups}
+                  value={values.dependencies || []}
+                  onChange={(_, val) => setFieldValue('dependencies', val)}
+                  getOptionLabel={(opt) => opt?.name || ''}
+                  isOptionEqualToValue={(opt, val) => opt.id === val.id}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Dependencies"
+                      placeholder="Select dependencies"
+                      error={touched.dependencies && Boolean(errors.dependencies)}
+                      helperText={touched.dependencies && (errors.dependencies as string)}
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {loadingLockups ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+
+                {/* Progress */}
+                <Box>
                   <Typography gutterBottom>Progress: {values.progress}%</Typography>
                   <Slider
                     value={values.progress}
-                    onChange={(_, value) => setFieldValue('progress', value)}
-                    onBlur={handleBlur}
-                    name="progress"
+                    onChange={(_, val) => setFieldValue('progress', val)}
                     min={0}
                     max={100}
                     step={1}
@@ -214,24 +268,29 @@ export const ActivityForm = ({
                     valueLabelDisplay="auto"
                   />
                   {touched.progress && errors.progress && (
-                    <Typography variant="caption" color="error" sx={styles.progressError}>
+                    <Typography color="error" variant="caption">
                       {errors.progress}
                     </Typography>
                   )}
                 </Box>
 
-                <Field
+                {/* Color */}
+                <FastField
                   as={TextField}
                   name="color"
-                  label="Color (Hex)"
+                  label="Color"
+                  type="color"
                   fullWidth
-                  placeholder="#60C0E0"
-                  variant="outlined"
-                  error={touched.color && !!errors.color}
-                  helperText={touched.color && errors.color || 'Optional: Enter a hex color code (e.g., #60C0E0)'}
+                  error={touched.color && Boolean(errors.color)}
+                  helperText={
+                    (touched.color && errors.color) ||
+                    'Optional: Choose a color'
+                  }
+                  InputLabelProps={{ shrink: true }}
                 />
               </Box>
             </DialogContent>
+
             <DialogActions>
               <Button onClick={onClose} disabled={isSubmitting}>
                 Cancel
@@ -249,5 +308,4 @@ export const ActivityForm = ({
 
 const styles = {
   formBox: { display: 'flex', flexDirection: 'column', gap: 2, pt: 1 },
-  progressError: { mt: 0.5, display: 'block' }
 };

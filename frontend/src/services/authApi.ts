@@ -1,4 +1,9 @@
-import type { AuthResponse, LoginRequest } from "../types/auth";
+import type {
+    AccessToken,
+    AuthResponse,
+    LoginRequest,
+    RefreshToken,
+} from "../types/auth";
 import axiosInstance from "../utils/axiosInstance";
 
 export const authApi = {
@@ -7,8 +12,13 @@ export const authApi = {
         return res.data;
     },
 
-    logout: async () => {
-        await axiosInstance.post("/auth/logout", {});
+    logout: async (data: RefreshToken) => {
+        await axiosInstance.post("/auth/logout", data);
+    },
+
+    refreshToken: async (data: RefreshToken): Promise<AccessToken> => {
+        const res = await axiosInstance.post("/auth/refresh", data);
+        return res.data;
     },
 };
 

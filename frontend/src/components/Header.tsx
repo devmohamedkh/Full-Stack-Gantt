@@ -9,6 +9,7 @@ import {
 import { Avatar, IconButton, Menu, MenuItem, Typography as MuiTypography, Box } from '@mui/material';
 import { useState, type MouseEvent } from 'react';
 import { useAuth } from '../context';
+import { useNavigate } from 'react-router';
 
 
 
@@ -16,7 +17,7 @@ function Header() {
     const muiTheme = useTheme();
     const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
     const { user, logout } = useAuth()
-
+    const navigate = useNavigate()
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -43,56 +44,60 @@ function Header() {
                     variant={isMobile ? "h6" : "h5"}
                     component="div"
                     sx={styles.title}
+                    onClick={() => navigate('/')}
                 >
                     PROJECT MANAGEMENT
                 </Typography>
 
-                <Box sx={{ ml: { xs: 0, md: 2 } }}>
-                    <IconButton
-                        onClick={handleAvatarClick}
-                        size="small"
-                        sx={{ ml: 2, }}
-                        aria-controls={open ? 'user-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                    >
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}>
-                            {user?.email.split(' ').map(word => word[0]).join('').toUpperCase()}
-                        </Avatar>
-                    </IconButton>
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleMenuClose}
-                        onClick={handleMenuClose}
-                        PaperProps={{
-                            elevation: 10,
-                            sx: {
-                                mt: 1.5,
-                                minWidth: 180,
-                            },
-                        }}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                    >
-                        <MenuItem disabled>
-                            <MuiTypography variant="subtitle1" color="text.primary">
-                                {user?.email}
-                            </MuiTypography>
-                        </MenuItem>
-                        <MenuItem onClick={handleSignOut}>
-                            <MuiTypography color="error">
-                                Sign Out
-                            </MuiTypography>
-                        </MenuItem>
-                    </Menu>
-                </Box>
+                {user &&
+                    <Box sx={{ ml: { xs: 0, md: 2 } }}>
+                        <IconButton
+                            onClick={handleAvatarClick}
+                            size="small"
+                            sx={{ ml: 2, bgcolor: '#0b4176' }}
+                            aria-controls={open ? 'user-menu' : undefined}
+                            aria-haspopup="true"
+                            aria-expanded={open ? 'true' : undefined}
+                        >
+                            <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}>
+                                {user?.email.split(' ').map(word => word[0]).join('').toUpperCase()}
+                            </Avatar>
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleMenuClose}
+                            onClick={handleMenuClose}
+                            PaperProps={{
+                                elevation: 10,
+                                sx: {
+                                    mt: 1.5,
+                                    minWidth: 180,
+                                },
+                            }}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                        >
+                            <MenuItem disabled>
+                                <MuiTypography variant="subtitle1" color="text.primary">
+                                    {user?.email}
+                                </MuiTypography>
+                            </MenuItem>
+                            <MenuItem onClick={handleSignOut}>
+                                <MuiTypography color="error">
+                                    Sign Out
+                                </MuiTypography>
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                }
+
             </Toolbar>
         </AppBar>
     );
@@ -107,6 +112,7 @@ const styles = {
         mb: { xs: 1, md: 0 },
         width: { xs: '100%', md: 'auto' },
         mr: { xs: 0, md: 'auto' },
+        cursor: 'pointer'
     },
 };
 

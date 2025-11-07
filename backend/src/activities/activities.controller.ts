@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -27,10 +29,11 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ActivityResponseDto } from './dto/activity-response.dto';
 import { ActivityStatus } from './entities/activity.entity';
-import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
 import { ActivityPaginationParamsDto } from './dto/pagination-params.dto';
+import { JwtAuthGuard } from 'src/auth/guard';
 
 @ApiTags('activities')
+@UseGuards(JwtAuthGuard)
 @Controller('activities')
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
@@ -63,6 +66,28 @@ export class ActivitiesController {
   })
   findAll(@Query() params: ActivityPaginationParamsDto) {
     return this.activitiesService.findAllPaginated(params);
+  }
+
+  @Get('/lockups')
+  @ApiOperation({ summary: 'Get all activities' })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ActivityStatus,
+    description: 'Filter activities by status',
+  })
+  @ApiOkResponse({
+    description: 'List of activities retrieved successfully',
+    type: [ActivityResponseDto],
+  })
+  findAllLockups(
+    @Query(
+      'excludedIds',
+      new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
+    )
+    excludedIds: number[] = [],
+  ) {
+    return this.activitiesService.findAllLockups(excludedIds);
   }
 
   @Get(':id')

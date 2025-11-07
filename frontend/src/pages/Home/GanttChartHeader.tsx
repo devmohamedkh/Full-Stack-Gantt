@@ -89,13 +89,13 @@ function GanttChartHeader({
                     </Box>
                 )}
             </Box>
-
             {showGanttChartView &&
                 <GanttChartView
                     onViewModeChange={onViewModeChange}
                     viewMode={viewMode}
                 />
             }
+
 
         </Box>
     );

@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import {
   Activity,
   ActivityStatus,
@@ -12,11 +12,7 @@ import {
 } from './entities/activity.entity';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
-import {
-  BaseService,
-  PaginatedResponse,
-  PaginationParams,
-} from '../common/base.service';
+import { BaseService, PaginatedResponse } from '../common/base.service';
 import { ActivityPaginationParamsDto } from './dto/pagination-params.dto';
 
 @Injectable()
@@ -81,6 +77,14 @@ export class ActivitiesService extends BaseService<Activity> {
       loadRelationIds: {
         relations: ['dependencies'],
       },
+      order: { order: 'ASC', createdAt: 'ASC' },
+    });
+  }
+
+  async findAllLockups(excludedIds: number[]): Promise<Activity[]> {
+    return this.activityRepository.find({
+      where: excludedIds.length > 0 ? { id: Not(In(excludedIds)) } : {},
+      select: ['name', 'id'],
       order: { order: 'ASC', createdAt: 'ASC' },
     });
   }

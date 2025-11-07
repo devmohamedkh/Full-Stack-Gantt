@@ -14,3 +14,11 @@ export interface AuthResponse {
     access_token: string;
     refresh_token: string;
 }
+
+export interface RefreshToken {
+    refreshToken: string;
+}
+
+export interface AccessToken {
+    access_token: string;
+}
