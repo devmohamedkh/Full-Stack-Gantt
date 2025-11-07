@@ -14,6 +14,9 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { BaseService, PaginatedResponse } from '../common/base.service';
 import { ActivityPaginationParamsDto } from './dto/pagination-params.dto';
+import { User } from 'src/users/entities/user.entity';
+import { ActivityResponseDto } from './dto/activity-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ActivitiesService extends BaseService<Activity> {
@@ -26,47 +29,72 @@ export class ActivitiesService extends BaseService<Activity> {
 
   async createActivity(
     createActivityDto: CreateActivityDto,
-  ): Promise<Activity> {
-    const startDate = new Date(createActivityDto.start);
-    const endDate = new Date(createActivityDto.end);
+    user: User,
+  ): Promise<ActivityResponseDto> {
+    const {
+      name,
+      description,
+      start,
+      end,
+      progress,
+      status,
+      type,
+      color,
+      order,
+      dependencies,
+    } = createActivityDto;
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
     if (endDate <= startDate) {
       throw new BadRequestException('End date must be after start date');
     }
 
-    const activity = this.activityRepository.create({
-      name: createActivityDto.name,
-      description: createActivityDto.description,
-      start: startDate,
-      end: endDate,
-      progress: createActivityDto.progress ?? 0,
-      status: createActivityDto.status ?? ActivityStatus.TODO,
-      type: createActivityDto.type ?? ActivityType.TASK,
-      color: createActivityDto.color,
-      order: createActivityDto.order ?? 0,
-    });
-
-    // Handle dependencies - load Activity entities
-    if (
-      createActivityDto.dependencies &&
-      createActivityDto.dependencies.length > 0
-    ) {
-      const dependencyIds = createActivityDto.dependencies.map(Number);
-      const dependencies =
+    // Validate dependencies (only if provided)
+    let dependencyEntities: Activity[] = [];
+    if (dependencies?.length) {
+      const dependencyIds = dependencies.map(Number);
+      dependencyEntities =
         await this.activityRepository.findByIds(dependencyIds);
-      if (dependencies.length !== dependencyIds.length) {
-        const foundIds = dependencies.map((d) => d.id);
+
+      if (dependencyEntities.length !== dependencyIds.length) {
+        const foundIds = dependencyEntities.map((d) => d.id);
         const missingIds = dependencyIds.filter((id) => !foundIds.includes(id));
         throw new NotFoundException(
           `Dependencies not found: ${missingIds.join(', ')}`,
         );
       }
-      activity.dependencies = dependencies;
-    } else {
-      activity.dependencies = [];
     }
 
-    return await super.create(activity);
+    // Create the entity in memory (only once)
+    const activity = this.activityRepository.create({
+      name,
+      description,
+      start: startDate,
+      end: endDate,
+      progress: progress ?? 0,
+      status: status ?? ActivityStatus.TODO,
+      type: type ?? ActivityType.TASK,
+      color,
+      order: order ?? 0,
+      dependencies: dependencyEntities,
+      createdBy: user,
+    });
+
+    // Save once
+    const savedActivity = await this.activityRepository.save(activity);
+
+    // Convert to DTO and return
+    return plainToInstance(
+      ActivityResponseDto,
+      {
+        ...savedActivity,
+        dependencies:
+          savedActivity.dependencies?.map((d) => String(d.id)) ?? [],
+      },
+      { excludeExtraneousValues: true },
+    );
   }
 
   async findAllPaginated(

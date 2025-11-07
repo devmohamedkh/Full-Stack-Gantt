@@ -31,13 +31,17 @@ import { ActivityResponseDto } from './dto/activity-response.dto';
 import { ActivityStatus } from './entities/activity.entity';
 import { ActivityPaginationParamsDto } from './dto/pagination-params.dto';
 import { JwtAuthGuard } from 'src/auth/guard';
+import { User, UserRole } from 'src/users/entities/user.entity';
+import { CurrentUser, Roles } from 'src/common/decorators';
+import { RoleGuard } from 'src/common/guards/role.guard';
 
 @ApiTags('activities')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('activities')
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create a new activity' })
   @ApiCreatedResponse({
@@ -48,8 +52,11 @@ export class ActivitiesController {
     description: 'Invalid input data or validation failed',
   })
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createActivityDto: CreateActivityDto) {
-    return this.activitiesService.createActivity(createActivityDto);
+  create(
+    @Body() createActivityDto: CreateActivityDto,
+    @CurrentUser() user: User,
+  ): Promise<ActivityResponseDto> {
+    return this.activitiesService.createActivity(createActivityDto, user);
   }
 
   @Get()
@@ -104,7 +111,7 @@ export class ActivitiesController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.activitiesService.findOneActivity(id);
   }
-
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Patch(':id')
   @ApiOperation({
     summary: 'Update an activity',
@@ -130,6 +137,7 @@ export class ActivitiesController {
     return this.activitiesService.updateActivity(id, updateActivityDto);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an activity' })
   @ApiParam({

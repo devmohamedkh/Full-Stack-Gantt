@@ -6,10 +6,12 @@ import {
   BeforeUpdate,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { compare, genSalt, hash } from 'bcrypt';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Activity } from 'src/activities/entities/activity.entity';
 
 export enum UserRole {
   EMPLOYEE = 'employee',
@@ -51,6 +53,14 @@ export class User {
   @ApiProperty({ required: false })
   @Column({ type: 'text', nullable: true })
   personalId: string;
+
+  @ApiProperty({
+    type: () => [Number],
+    required: false,
+    description: 'Activities created by this user',
+  })
+  @OneToMany(() => Activity, (activity) => activity.createdBy)
+  createdActivities?: Activity[];
 
   @ApiProperty()
   @CreateDateColumn()

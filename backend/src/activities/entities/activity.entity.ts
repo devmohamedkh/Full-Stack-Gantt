@@ -1,3 +1,4 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,6 +7,8 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum ActivityStatus {
@@ -64,13 +67,17 @@ export class Activity {
     joinColumn: { name: 'activity_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'dependency_id', referencedColumnName: 'id' },
   })
-  dependencies: Activity[]; // Activities that this task depends on
+  dependencies: Activity[];
 
   @ManyToMany(() => Activity, (activity) => activity.dependencies)
-  dependents: Activity[]; // Activities that depend on this task
+  dependents: Activity[];
 
   @Column({ type: 'int', default: 0 })
-  order: number; // For sorting
+  order: number;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'createdById' })
+  createdBy: User;
 
   @CreateDateColumn()
   createdAt: Date;
