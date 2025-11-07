@@ -3,6 +3,7 @@ import type { Activity, ActivityStatus, CreateActivityDto, PickedActivityNameId,
 import { ViewMode, type Task } from "gantt-task-react";
 import { activitiesApi } from "../services/activitiesApi";
 import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
 
 export function useActivities() {
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -26,8 +27,8 @@ export function useActivities() {
             const data = await activitiesApi.getAll(params);
             setActivities(data);
         } catch (error) {
-            console.error('Failed to load activities:', error);
-            toast.error('Failed to load activities');
+            const err = error as AxiosError
+            toast.error(err.message || 'Failed to load activities');
         } finally {
             setLoading(false);
         }
@@ -38,14 +39,14 @@ export function useActivities() {
             setLoading(true)
             await activitiesApi.create(data);
             toast.success('Activity created successfully');
-            loadActivities();
+            await loadActivities();
         } catch (error) {
-            console.error('Failed to create activity:', error);
-            toast.error('Failed to create activity');
+            const err = error as AxiosError
+
+            toast.error(err.message || 'Failed to create activity');
             throw error;
         } finally {
-            setLoading(false)
-
+            setLoading(false);
         }
     };
 
@@ -58,8 +59,8 @@ export function useActivities() {
             loadActivities();
             setSelectedActivity(null);
         } catch (error) {
-            console.error('Failed to update activity:', error);
-            toast.error('Failed to update activity');
+            const err = error as AxiosError
+            toast.error(err?.message || 'Failed to update activity');
             throw error;
         }
     };
@@ -73,8 +74,8 @@ export function useActivities() {
             setSelectedTask(null);
             setDetailsOpen(false);
         } catch (error) {
-            console.error('Failed to delete activity:', error);
-            toast.error('Failed to delete activity');
+            const err = error as AxiosError
+            toast.error(err.message || 'Failed to delete activity');
         }
     };
 
@@ -91,8 +92,9 @@ export function useActivities() {
             toast.success('Activity updated successfully');
             loadActivities();
         } catch (error) {
-            console.error('Failed to update activity:', error);
-            toast.error('Failed to update activity');
+            const err = error as AxiosError
+            toast.error(err?.message || 'Failed to update activityy');
+
         }
     };
 
@@ -135,7 +137,9 @@ export function useActivities() {
         } else {
             await handleUpdateActivity(data as UpdateActivityDto);
         }
-    };
+
+
+    }
 
 
     const getActivityLockups = async (excludedIds?: number[]): Promise<PickedActivityNameId[]> => {

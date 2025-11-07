@@ -6,6 +6,7 @@ import { Home, Login, NotFoundPage } from './pages';
 import PrivetRoutes from './components/PrivetRoutes';
 import { AuthProvider } from './context/AuthContext';
 import UnAuthRoutes from './components/UnAuthRoutes';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
 
@@ -24,6 +25,17 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </BrowserRouter>
   );
 }

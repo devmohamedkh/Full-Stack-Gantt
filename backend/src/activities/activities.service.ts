@@ -27,6 +27,78 @@ export class ActivitiesService extends BaseService<Activity> {
     super(activityRepository);
   }
 
+  private async hasDependencyCycle(
+    activityId: number,
+    dependencies: Activity[],
+  ): Promise<boolean> {
+    const visited = new Set<number>();
+
+    const checkCycle = async (currentId: number): Promise<boolean> => {
+      if (visited.has(currentId)) return true;
+      visited.add(currentId);
+
+      const activity = await this.activityRepository.findOne({
+        where: { id: currentId },
+        relations: ['dependencies'],
+      });
+
+      for (const dep of activity?.dependencies || []) {
+        if (dep.id === activityId || (await checkCycle(dep.id))) {
+          return true;
+        }
+      }
+
+      visited.delete(currentId);
+      return false;
+    };
+
+    for (const dep of dependencies) {
+      if (await checkCycle(dep.id)) return true;
+    }
+
+    return false;
+  }
+
+  private async validateDependencies(
+    activityId: number,
+    dependencyIds: number[],
+    startDate: Date,
+    activityName: string,
+  ): Promise<Activity[]> {
+    if (!dependencyIds?.length) return [];
+
+    // 1️⃣ تحقق من وجود Self-dependency
+    if (dependencyIds.includes(activityId)) {
+      throw new BadRequestException('Activity cannot depend on itself');
+    }
+
+    // 2️⃣ جلب dependencies من قاعدة البيانات
+    const dependencies = await this.activityRepository.findByIds(dependencyIds);
+    if (dependencies.length !== dependencyIds.length) {
+      const foundIds = dependencies.map((d) => d.id);
+      const missingIds = dependencyIds.filter((id) => !foundIds.includes(id));
+      throw new NotFoundException(
+        `Dependencies not found: ${missingIds.join(', ')}`,
+      );
+    }
+
+    // 3️⃣ تحقق من قاعدة Finish-to-Start
+    for (const dep of dependencies) {
+      if (startDate < dep.end) {
+        throw new BadRequestException(
+          `Finish-to-start rule violated: "${activityName}" starts before dependency "${dep.name}" ends.`,
+        );
+      }
+    }
+
+    // 4️⃣ تحقق من وجود دورة (cycle)
+    if (await this.hasDependencyCycle(activityId, dependencies)) {
+      throw new BadRequestException('Dependency cycle detected');
+    }
+
+    return dependencies;
+  }
+
   async createActivity(
     createActivityDto: CreateActivityDto,
     user: User,
@@ -51,23 +123,13 @@ export class ActivitiesService extends BaseService<Activity> {
       throw new BadRequestException('End date must be after start date');
     }
 
-    // Validate dependencies (only if provided)
-    let dependencyEntities: Activity[] = [];
-    if (dependencies?.length) {
-      const dependencyIds = dependencies.map(Number);
-      dependencyEntities =
-        await this.activityRepository.findByIds(dependencyIds);
+    const dependencyEntities = await this.validateDependencies(
+      0,
+      dependencies?.map(Number) || [],
+      startDate,
+      name,
+    );
 
-      if (dependencyEntities.length !== dependencyIds.length) {
-        const foundIds = dependencyEntities.map((d) => d.id);
-        const missingIds = dependencyIds.filter((id) => !foundIds.includes(id));
-        throw new NotFoundException(
-          `Dependencies not found: ${missingIds.join(', ')}`,
-        );
-      }
-    }
-
-    // Create the entity in memory (only once)
     const activity = this.activityRepository.create({
       name,
       description,
@@ -82,10 +144,8 @@ export class ActivitiesService extends BaseService<Activity> {
       createdBy: user,
     });
 
-    // Save once
     const savedActivity = await this.activityRepository.save(activity);
 
-    // Convert to DTO and return
     return plainToInstance(
       ActivityResponseDto,
       {
@@ -97,14 +157,59 @@ export class ActivitiesService extends BaseService<Activity> {
     );
   }
 
+  async updateActivity(
+    id: number,
+    updateActivityDto: UpdateActivityDto,
+  ): Promise<Activity> {
+    const activity = await this.findOneActivity(id);
+
+    let startDate = activity.start;
+    let endDate = activity.end;
+
+    if (updateActivityDto.start) startDate = new Date(updateActivityDto.start);
+    if (updateActivityDto.end) endDate = new Date(updateActivityDto.end);
+
+    if (endDate <= startDate) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
+    const { dependencies, ...restDto } = updateActivityDto;
+
+    const updateData: Partial<Activity> = {
+      ...restDto,
+      start: startDate,
+      end: endDate,
+    };
+
+    const dependencyIds =
+      dependencies !== undefined
+        ? dependencies.map(Number)
+        : (activity.dependencies?.map((dep) => dep.id) ?? []);
+
+    if (dependencyIds.length > 0) {
+      const validatedDeps = await this.validateDependencies(
+        id,
+        dependencyIds,
+        startDate,
+        activity.name,
+      );
+
+      if (dependencies !== undefined) {
+        activity.dependencies = validatedDeps;
+      }
+    }
+
+    Object.assign(activity, updateData);
+    await this.activityRepository.save(activity);
+    return activity;
+  }
+
   async findAllPaginated(
     params: ActivityPaginationParamsDto,
   ): Promise<PaginatedResponse<Activity>> {
     return super.paginate(params, {
       where: { status: params.status },
-      loadRelationIds: {
-        relations: ['dependencies'],
-      },
+      loadRelationIds: { relations: ['dependencies'] },
       order: { order: 'ASC', createdAt: 'ASC' },
     });
   }
@@ -125,73 +230,6 @@ export class ActivitiesService extends BaseService<Activity> {
     if (!activity) {
       throw new NotFoundException(`Activity with ID ${id} not found`);
     }
-
-    return activity;
-  }
-
-  async updateActivity(
-    id: number,
-    updateActivityDto: UpdateActivityDto,
-  ): Promise<Activity> {
-    const activity = await this.findOneActivity(id);
-
-    if (updateActivityDto.start && updateActivityDto.end) {
-      const startDate = new Date(updateActivityDto.start);
-      const endDate = new Date(updateActivityDto.end);
-      if (endDate <= startDate) {
-        throw new BadRequestException('End date must be after start date');
-      }
-    }
-
-    const updateData: Partial<Activity> = {};
-    if (updateActivityDto.name !== undefined)
-      updateData.name = updateActivityDto.name;
-    if (updateActivityDto.description !== undefined)
-      updateData.description = updateActivityDto.description;
-    if (updateActivityDto.start !== undefined)
-      updateData.start = new Date(updateActivityDto.start);
-    if (updateActivityDto.end !== undefined)
-      updateData.end = new Date(updateActivityDto.end);
-    if (updateActivityDto.progress !== undefined)
-      updateData.progress = updateActivityDto.progress;
-    if (updateActivityDto.status !== undefined)
-      updateData.status = updateActivityDto.status;
-    if (updateActivityDto.type !== undefined)
-      updateData.type = updateActivityDto.type;
-    if (updateActivityDto.color !== undefined)
-      updateData.color = updateActivityDto.color;
-    if (updateActivityDto.order !== undefined)
-      updateData.order = updateActivityDto.order;
-
-    // Handle dependencies - load Activity entities
-    if (updateActivityDto.dependencies !== undefined) {
-      const dependencyIds = updateActivityDto.dependencies;
-      if (dependencyIds.length > 0) {
-        // Prevent self-dependency
-        if (dependencyIds.includes(id)) {
-          throw new BadRequestException('Activity cannot depend on itself');
-        }
-        const dependencies = await this.activityRepository.findByIds(
-          dependencyIds.map(Number),
-        );
-        if (dependencies.length !== dependencyIds.length) {
-          const foundIds = dependencies.map((d) => d.id);
-          const missingIds = dependencyIds.filter(
-            (depId) => !foundIds.includes(depId),
-          );
-          throw new NotFoundException(
-            `Dependencies not found: ${missingIds.join(', ')}`,
-          );
-        }
-        activity.dependencies = dependencies;
-      } else {
-        activity.dependencies = [];
-      }
-    }
-
-    Object.assign(activity, updateData);
-
-    await this.activityRepository.save(activity);
     return activity;
   }
 
