@@ -5,6 +5,7 @@ import {
   DeepPartial,
   ObjectLiteral,
   FindOptionsWhere,
+  FindOneOptions,
 } from 'typeorm';
 
 export interface PaginationParams {
@@ -53,15 +54,13 @@ export abstract class BaseService<T extends ObjectLiteral> {
   }
 
   async findAll(options: FindManyOptions<T> = {}): Promise<T[]> {
-    return this.repository.find({
-      ...options,
-    });
+    return this.repository.find(options);
   }
 
-  async findOneById(id: number): Promise<T> {
+  async findOneById(id: number, options?: FindOneOptions<T>): Promise<T> {
     const where: FindOptionsWhere<T> = { id } as unknown as FindOptionsWhere<T>;
 
-    const entity = await this.repository.findOne({ where });
+    const entity = await this.repository.findOne({ where, ...options });
 
     if (!entity) {
       throw new Error(`${this.repository.metadata.tableName} not found`);
@@ -85,7 +84,6 @@ export abstract class BaseService<T extends ObjectLiteral> {
     }
 
     await this.repository.update(where, data as any);
-
     return this.findOneById(id);
   }
 

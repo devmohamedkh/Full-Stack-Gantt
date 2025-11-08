@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
@@ -14,6 +13,7 @@ import {
 } from '../common/base.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
@@ -49,8 +49,8 @@ export class UsersService extends BaseService<User> {
     this.isSuperAdminCreating(createUserDto, currentUser);
 
     const user = await super.create(createUserDto);
-    const { password, ...curUser } = user;
-    return curUser as User;
+    const plainUser = instanceToPlain(user, { excludePrefixes: ['password'] });
+    return plainToInstance(User, plainUser);
   }
 
   async updateUser(
@@ -58,12 +58,11 @@ export class UsersService extends BaseService<User> {
     updateUserDto: UpdateUserDto,
     requestingUser: User,
   ): Promise<User> {
-    const { ...userDataToUpdate } = updateUserDto;
     const userToUpdate = await this.findOneById(id);
 
     this.canUpdateUser(id, userToUpdate, requestingUser);
 
-    return super.update(id, userDataToUpdate);
+    return super.update(id, updateUserDto);
   }
 
   async findByEmailAnd(email: string): Promise<User | null> {

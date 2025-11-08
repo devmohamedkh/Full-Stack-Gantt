@@ -11,6 +11,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { ApiBody } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +34,7 @@ export class AuthController {
     },
     description: 'Login credentials',
   })
-  async login(@CurrentUser() user: User) {
+  async login(@CurrentUser() user: User): Promise<CreateAuthDto> {
     return await this.authService.login(user);
   }
 

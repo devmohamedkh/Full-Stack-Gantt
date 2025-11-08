@@ -67,13 +67,14 @@ export class ActivitiesService extends BaseService<Activity> {
   ): Promise<Activity[]> {
     if (!dependencyIds?.length) return [];
 
-    // 1️⃣ تحقق من وجود Self-dependency
     if (dependencyIds.includes(activityId)) {
       throw new BadRequestException('Activity cannot depend on itself');
     }
 
-    // 2️⃣ جلب dependencies من قاعدة البيانات
-    const dependencies = await this.activityRepository.findByIds(dependencyIds);
+    const dependencies = await this.activityRepository.findBy({
+      id: In(dependencyIds),
+    });
+
     if (dependencies.length !== dependencyIds.length) {
       const foundIds = dependencies.map((d) => d.id);
       const missingIds = dependencyIds.filter((id) => !foundIds.includes(id));
@@ -82,7 +83,6 @@ export class ActivitiesService extends BaseService<Activity> {
       );
     }
 
-    // 3️⃣ تحقق من قاعدة Finish-to-Start
     for (const dep of dependencies) {
       if (startDate < dep.end) {
         throw new BadRequestException(
@@ -91,7 +91,6 @@ export class ActivitiesService extends BaseService<Activity> {
       }
     }
 
-    // 4️⃣ تحقق من وجود دورة (cycle)
     if (await this.hasDependencyCycle(activityId, dependencies)) {
       throw new BadRequestException('Dependency cycle detected');
     }
@@ -223,18 +222,11 @@ export class ActivitiesService extends BaseService<Activity> {
   }
 
   async findOneActivity(id: number): Promise<Activity> {
-    const activity = await this.activityRepository.findOne({
-      where: { id },
-      relations: ['dependencies'],
-    });
-    if (!activity) {
-      throw new NotFoundException(`Activity with ID ${id} not found`);
-    }
-    return activity;
+    return await super.findOneById(id, { relations: ['dependencies'] });
   }
 
   async remove(id: number): Promise<void> {
-    await this.delete(id);
+    await super.delete(id);
   }
 
   async findByStatus(status: ActivityStatus): Promise<Activity[]> {

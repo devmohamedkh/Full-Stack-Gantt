@@ -5,7 +5,7 @@ export function generatePaginatedResponse<T>(itemType: Type<T>) {
   class PaginatedResponseClass {
     @ApiProperty({
       description: 'Array of items',
-      type: [itemType], // Ensures correct type mapping in Swagger
+      type: [itemType],
     })
     data: T[];
 

@@ -7,6 +7,8 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { LoggerService } from '../common/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities/user.entity';
+import { instanceToPlain } from 'class-transformer';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,12 +30,12 @@ export class AuthService {
     if (!user || !(await user.validatePassword(password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const { password: p, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
+    return instanceToPlain(user, {
+      excludePrefixes: ['password', 'createdActivities'],
+    });
   }
 
-  async login(user: User) {
+  async login(user: User): Promise<CreateAuthDto> {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user);
 
@@ -88,7 +90,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // Explicitly type the decoded token
     const decoded = this.jwtService.verify<{ sub: number }>(refreshToken, {
       secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
     });
@@ -100,11 +101,6 @@ export class AuthService {
     }
 
     const newAccessToken = this.generateAccessToken(user);
-
-    this.logger.info({
-      message: `Access token refreshed for user: ${user.email}`,
-      userId: user.id,
-    });
 
     return { access_token: newAccessToken };
   }
