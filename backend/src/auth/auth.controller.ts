@@ -9,10 +9,11 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard, LocalAuthGuard } from './guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
