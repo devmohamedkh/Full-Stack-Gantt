@@ -70,8 +70,8 @@ This will:
 Before you can use the application, you need to run database migrations and seed the super admin account:
 
 ```bash
-docker compose exec backend pnpm migration:run
-docker compose exec backend pnpm seed:super-admin
+docker compose exec backend sh -c "cd app && pnpm migration:run"
+docker compose exec backend sh -c "cd app && pnpm seed:super-admin"
 ```
 
 > 💡 These commands must be executed inside the running backend container after services are up.
