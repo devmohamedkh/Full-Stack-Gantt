@@ -18,32 +18,56 @@ services:
     networks:
       - gantt-network
 
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #     target: production
-  #   container_name: gantt-backend
-  #   environment:
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
-  #     DB_USERNAME: ${DB_USERNAME:-postgres}
-  #     DB_PASSWORD: ${DB_PASSWORD:-postgres}
-  #     DB_NAME: ${DB_NAME:-gantt_db}
-  #     PORT: 3000
-  #     NODE_ENV: ${NODE_ENV:-production}
-  #     DB_SYNCHRONIZE: ${DB_SYNCHRONIZE:-false}
-  #     RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
-  #     DB_LOGGING: ${DB_LOGGING:-false}
-  #     FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
-  #   ports:
-  #     - "${PORT:-3000}:3000"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - gantt-network
-  #   restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: gantt-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-gantt_db}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      DB_LOGGING: ${DB_LOGGING:-false}
+      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE:-false}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-TEST_JWT_REFRESH_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-TEST_JWT_SECRET}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-superadmin@yourdomain.com}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:-YourSecurePassword123}
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gantt-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        VITE_API_URL: ${BACKEND_URL:-http://localhost:3000/api}
+        VITE_PORT: ${FRONTEND_PORT:-3001}
+    container_name: gantt-frontend
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      
+    ports:
+      - "${FRONTEND_PORT:-3001}:80" 
+    depends_on:
+      - backend
+    networks:
+      - gantt-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:

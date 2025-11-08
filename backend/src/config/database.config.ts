@@ -12,16 +12,9 @@ export default registerAs(
     database: process.env.DB_NAME || 'gantt_db',
     autoLoadEntities: true,
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: true,
-
-    // migrations: ['dist/migrations/*.js'],
-    // migrationsRun: process.env.RUN_MIGRATIONS === 'true',
-    // synchronize:
-    //   process.env.DB_SYNCHRONIZE === 'true' ||
-    //   (process.env.NODE_ENV !== 'production' &&
-    //     process.env.RUN_MIGRATIONS !== 'true'), // Auto-sync schema in development unless migrations are enabled
-    // logging:
-    //   process.env.NODE_ENV === 'development' ||
-    //   process.env.DB_LOGGING === 'true',
+    synchronize: false,
+    logging:
+      process.env.NODE_ENV === 'development' ||
+      process.env.DB_LOGGING === 'true',
   }),
 );

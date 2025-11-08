@@ -81,7 +81,6 @@ export const ActivityForm = ({
   const formatDateForInput = (date: Date | string) =>
     new Date(date).toISOString().slice(0, 16);
 
-  // ✅ Fetch dependencies once dialog opens
   useEffect(() => {
     if (open) {
       setLoadingLockups(true);

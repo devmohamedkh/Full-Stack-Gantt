@@ -2,11 +2,12 @@ import {
   MigrationInterface,
   QueryRunner,
   Table,
-  TableIndex,
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateActivitiesTable20251105 implements MigrationInterface {
+export class CreateActivitiesTable1731013000001 implements MigrationInterface {
+  name = 'CreateActivitiesTable1731013000001';
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -14,15 +15,14 @@ export class CreateActivitiesTable20251105 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'serial',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'gen_random_uuid()',
           },
           {
             name: 'name',
             type: 'varchar',
             length: '255',
+            isNullable: false,
           },
           {
             name: 'description',
@@ -32,10 +32,12 @@ export class CreateActivitiesTable20251105 implements MigrationInterface {
           {
             name: 'start_date',
             type: 'timestamp',
+            isNullable: false,
           },
           {
             name: 'end_date',
             type: 'timestamp',
+            isNullable: false,
           },
           {
             name: 'progress',
@@ -46,13 +48,13 @@ export class CreateActivitiesTable20251105 implements MigrationInterface {
             name: 'status',
             type: 'enum',
             enum: ['todo', 'in_progress', 'completed', 'blocked'],
-            default: "'todo'",
+            default: `'todo'`,
           },
           {
             name: 'type',
             type: 'enum',
             enum: ['task', 'project', 'milestone'],
-            default: "'task'",
+            default: `'task'`,
           },
           {
             name: 'color',
@@ -64,6 +66,11 @@ export class CreateActivitiesTable20251105 implements MigrationInterface {
             name: 'order',
             type: 'int',
             default: 0,
+          },
+          {
+            name: 'createdById',
+            type: 'int',
+            isNullable: true,
           },
           {
             name: 'createdAt',
@@ -81,93 +88,56 @@ export class CreateActivitiesTable20251105 implements MigrationInterface {
       true,
     );
 
-    // Create indexes for better query performance
-    await queryRunner.createIndex(
+    await queryRunner.createForeignKey(
       'activities',
-      new TableIndex({
-        name: 'IDX_ACTIVITIES_STATUS',
-        columnNames: ['status'],
+      new TableForeignKey({
+        columnNames: ['createdById'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'users',
+        onDelete: 'SET NULL',
+        name: 'FK_activities_createdById',
       }),
     );
 
-    await queryRunner.createIndex(
-      'activities',
-      new TableIndex({
-        name: 'IDX_ACTIVITIES_TYPE',
-        columnNames: ['type'],
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'activities',
-      new TableIndex({
-        name: 'IDX_ACTIVITIES_ORDER',
-        columnNames: ['order'],
-      }),
-    );
-
-    // Create join table for ManyToMany dependencies relation
     await queryRunner.createTable(
       new Table({
         name: 'activity_dependencies',
         columns: [
           {
             name: 'activity_id',
-            type: 'uuid',
+            type: 'int',
             isPrimary: true,
           },
           {
             name: 'dependency_id',
-            type: 'uuid',
+            type: 'int',
             isPrimary: true,
+          },
+        ],
+        foreignKeys: [
+          {
+            columnNames: ['activity_id'],
+            referencedColumnNames: ['id'],
+            referencedTableName: 'activities',
+            onDelete: 'CASCADE',
+            name: 'FK_activity_dependencies_activity',
+          },
+          {
+            columnNames: ['dependency_id'],
+            referencedColumnNames: ['id'],
+            referencedTableName: 'activities',
+            onDelete: 'CASCADE',
+            name: 'FK_activity_dependencies_dependency',
           },
         ],
       }),
       true,
     );
-
-    // Add foreign keys for dependencies join table
-    await queryRunner.createForeignKey(
-      'activity_dependencies',
-      new TableForeignKey({
-        columnNames: ['activity_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'activities',
-        onDelete: 'CASCADE',
-      }),
-    );
-
-    await queryRunner.createForeignKey(
-      'activity_dependencies',
-      new TableForeignKey({
-        columnNames: ['dependency_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'activities',
-        onDelete: 'CASCADE',
-      }),
-    );
-
-    // Create indexes on join table
-    await queryRunner.createIndex(
-      'activity_dependencies',
-      new TableIndex({
-        name: 'IDX_ACTIVITY_DEPENDENCIES_ACTIVITY_ID',
-        columnNames: ['activity_id'],
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'activity_dependencies',
-      new TableIndex({
-        name: 'IDX_ACTIVITY_DEPENDENCIES_DEPENDENCY_ID',
-        columnNames: ['dependency_id'],
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop join table first
     await queryRunner.dropTable('activity_dependencies');
+    await queryRunner.dropForeignKey('activities', 'FK_activities_createdById');
     await queryRunner.dropTable('activities');
   }
 }

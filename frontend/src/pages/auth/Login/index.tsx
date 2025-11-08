@@ -9,10 +9,11 @@ const Login = () => {
         <Container maxWidth="md" sx={styles.container}>
             <Box sx={styles.boxWrapper}>
                 <Box sx={styles.imageBox}>
-                    <img
+                    <Box
+                        component={'img'}
                         src={LOGIN_IMAGE_URL}
                         alt="Login Visual"
-                        style={styles.imageStyle}
+                        sx={styles.imageStyle}
                     />
                 </Box>
                 <Box sx={styles.formBox}>

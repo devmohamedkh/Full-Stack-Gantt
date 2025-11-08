@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   UseGuards,
-  Res,
   UnauthorizedException,
   Body,
 } from '@nestjs/common';
@@ -10,7 +9,6 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard, LocalAuthGuard } from './guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-import type { Response } from 'express';
 import { ApiBody } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 

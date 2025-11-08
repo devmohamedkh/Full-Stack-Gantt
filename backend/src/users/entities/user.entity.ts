@@ -11,7 +11,8 @@ import {
 import { compare, genSalt, hash } from 'bcrypt';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { Activity } from 'src/activities/entities/activity.entity';
+import { Activity } from '../../activities/entities/activity.entity';
+import { RefreshToken } from '../../auth/entities/refresh-token.entity';
 
 export enum UserRole {
   EMPLOYEE = 'employee',
@@ -61,6 +62,9 @@ export class User {
   })
   @OneToMany(() => Activity, (activity) => activity.createdBy)
   createdActivities?: Activity[];
+
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens?: RefreshToken[];
 
   @ApiProperty()
   @CreateDateColumn()

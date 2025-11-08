@@ -31,7 +31,6 @@ export const GanttChartView: React.FC<GanttChartViewProps> = ({
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Menu state for mobile view
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 

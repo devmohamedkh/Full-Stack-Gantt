@@ -11,7 +11,7 @@ async function seedSuperAdmin() {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [User],
+    entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   });
 
   try {
@@ -22,22 +22,21 @@ async function seedSuperAdmin() {
       where: { role: UserRole.SUPER_ADMIN },
     });
 
-    console.log({ existingSuperAdmin });
-
     if (existingSuperAdmin) {
       console.log('Super Admin already exists:', existingSuperAdmin.email);
       return;
     }
 
     // Create SUPER_ADMIN
-    const password = process.env.SUPER_ADMIN_PASSWORD || 'SuperAdmin123!';
-    const email = process.env.SUPER_ADMIN_EMAIL || 'superadmin@yourdomain.com';
+    const password = process.env.SUPER_ADMIN_PASSWORD;
+    const email = process.env.SUPER_ADMIN_EMAIL;
 
     const superAdmin = userRepository.create({
       email,
       password,
       name: 'Super Admin',
       role: UserRole.SUPER_ADMIN,
+      createdActivities: undefined,
     });
 
     await userRepository.save(superAdmin);
