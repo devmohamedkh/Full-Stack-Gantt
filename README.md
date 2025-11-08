@@ -1,54 +1,59 @@
-# Gantt Chart Full-Stack Application
+# 🧭 Gantt Chart Full Stack Application
 
-A **full-stack Gantt chart application** with a NestJS backend and frontend (React). This application allows you to manage users (api only) and activities with full CRUD functionality.
-
----
-
-## Features
-
-### Backend (NestJS + PostgreSQL)
-
--   RESTful API for users and activities
--   PostgreSQL database with TypeORM
--   Input validation using `class-validator`
--   Environment-based configuration
--   CORS enabled for frontend integration
--   Swagger/OpenAPI documentation
--   Database migrations with TypeORM
--   Dockerized for easy deployment
-
-### Frontend (React/Next.js)
-
--   Interactive Gantt chart UI
--   activity management
--   API integration with backend
--   Authentication and role-based access
--   Responsive and mobile-friendly design
+A **Full Stack Gantt Chart Application** built with **NestJS (backend)**, **React (frontend)**, and **PostgreSQL (database)**. This project provides a complete setup for managing Gantt chart activities, user authentication, and API documentation.
 
 ---
 
-## Prerequisites
+## 🚀 Features
 
-### Local Development
+### Backend (NestJS)
 
--   Node.js v18+
--   pnpm v10+
--   PostgreSQL v12+
+-   RESTful API for CRUD operations on **users** and **activities**
+-   PostgreSQL database with **TypeORM** ORM
+-   **Class-validator** for input validation
+-   **Swagger/OpenAPI** documentation
+-   **Environment-based configuration**
+-   **CORS** enabled for frontend integration
 
-### Docker Development
+### Frontend (React)
 
--   Docker v20+
--   Docker Compose v2+
+-   Modern UI for Gantt chart management
+-   API integration with backend endpoints
+-   Responsive design and state management
+-   Docker-ready configuration for deployment
 
 ---
 
-## Setup
+## 🧩 Prerequisites
 
-### Option 1: Docker Compose (Recommended)
+### For Local Development
 
-1. Copy `.env.example` to `.env` and update environment variables.
+-   Node.js (v18 or higher)
+-   pnpm (v10 or higher)
+-   PostgreSQL (v12 or higher)
 
-2. Start services:
+### For Docker Development
+
+-   Docker (v20 or higher)
+-   Docker Compose (v2 or higher)
+
+---
+
+## ⚙️ Setup
+
+### Option 1: 🐳 Docker Compose (Recommended)
+
+Run the entire stack (backend + frontend + PostgreSQL) using Docker Compose.
+
+#### 1. Copy the environment file
+
+```bash
+cp .env.example .env
+```
+
+Update environment variables as needed.
+
+#### 2. Start services
 
 ```bash
 docker-compose up -d
@@ -58,139 +63,161 @@ This will:
 
 -   Build backend and frontend Docker images
 -   Start PostgreSQL database
--   Start backend API
--   Start frontend
--   Create persistent volumes for database data
+-   Expose services on configured ports
 
-3. View logs:
+#### 3. Run Migrations and Seed Admin (Manual)
+
+Before you can use the application, you need to run database migrations and seed the super admin account:
 
 ```bash
-docker-compose logs -f       # All services
+docker compose exec backend pnpm migration:run
+docker compose exec backend pnpm seed:super-admin
+```
+
+> 💡 These commands must be executed inside the running backend container after services are up.
+
+#### 4. View logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
 docker-compose logs -f backend
 docker-compose logs -f frontend
 docker-compose logs -f postgres
 ```
 
-4. Stop services:
+#### 5. Stop and clean up
 
 ```bash
 docker-compose down
 ```
 
-5. Stop and remove volumes (clean slate):
+#### 6. (Optional) Clean slate with volumes
 
 ```bash
 docker-compose down -v
 ```
 
-The API will be available at `http://localhost:3000/api`
-
-The frontend will be available at `http://localhost:3001` (or the port configured in `.env`)
-
-Swagger docs: `http://localhost:3000/docs`
+Backend API: [http://localhost:3000/api](http://localhost:3000/api)  
+Frontend App: [http://localhost:3001](http://localhost:3001)  
+Swagger Docs: [http://localhost:3000/docs](http://localhost:3000/docs)
 
 ---
 
-### Option 2: Local Development
+### Option 2: 💻 Local Development
 
-#### Backend
-
-1. Install dependencies:
+#### 1. Install Dependencies
 
 ```bash
 cd backend
 pnpm install
 ```
 
-2. Create the PostgreSQL database:
+#### 2. Database Setup
+
+Create a PostgreSQL database:
 
 ```sql
 CREATE DATABASE gantt_db;
 ```
 
-3. Copy `.env.example` to `.env` and update environment variables.
+#### 3. Configure Environment
 
-4. Run the backend:
+Copy `.env.example` and configure:
 
 ```bash
-# Development
-pnpm start:dev
+cp .env.example .env
+```
 
-# Production
+#### 4. Run Migrations and Seed Admin (Manual)
+
+Before running the app, manually run migrations and seed the super admin:
+
+```bash
+pnpm migration:run
+pnpm seed:super-admin
+```
+
+> 💡 These commands must be executed once before the application can start properly.
+
+#### 5. Start Application
+
+Development:
+
+```bash
+pnpm start:dev
+```
+
+Production:
+
+```bash
 pnpm build
 pnpm start:prod
 ```
 
-#### Frontend
-
-1. Install dependencies:
-
-```bash
-cd frontend
-pnpm install
-```
-
-2. Copy `.env.example` to `.env.local` and update environment variables.
-
-3. Run the frontend:
-
-```bash
-# Development
-pnpm dev
-
-# Production build
-pnpm build
-pnpm start
-```
+Backend API: [http://localhost:3000/api](http://localhost:3000/api)
 
 ---
 
-## API Documentation (Swagger)
+## 📘 API Documentation (Swagger)
 
-Once the backend is running, access Swagger UI:
+Once running, access interactive documentation at:
+➡️ **[http://localhost:3000/docs](http://localhost:3000/docs)**
 
-```
-http://localhost:3000/docs
-```
+The Swagger UI includes:
 
-Features:
-
--   Complete endpoint documentation
--   Interactive testing
+-   Endpoint documentation
 -   Request/response schemas
--   Example requests
--   Try-it-out functionality
+-   Example payloads
+-   Try-it-out testing interface
 
 ---
 
-## Database Migrations
+## 🧱 Database Migrations
 
-This project uses **TypeORM migrations** to manage database schemas.
+This project uses **TypeORM migrations** to manage schema changes.
 
-### Migration Commands
+### Scripts
 
 ```bash
-# Generate migration from entity changes
-pnpm migration:generate src/migrations/MigrationName
-
-# Create empty migration
-pnpm migration:create src/migrations/MigrationName
-
-# Run migrations
-pnpm migration:run
-
-# Revert last migration
-pnpm migration:revert
-
-# Show migration status
-pnpm migration:show
+"migration:generate": "Generate a new migration file based on entity changes",
+"migration:create": "Create an empty migration file",
+"migration:run": "Run all pending migrations",
+"migration:revert": "Revert the last executed migration",
+"migration:show": "Show all migrations and their current status",
+"migration:run:prod": "Run migrations in production environment",
+"seed:super-admin": "Seed the database with a super admin user (development)",
+"seed:super-admin:prod": "Seed the database with a super admin user (production)"
 ```
 
-> **Production/Docker:** Migrations not ruining automatically you need to run `pnpm migration:run`
+### Run Migrations
+
+```bash
+pnpm migration:run
+```
+
+### Seed Super Admin
+
+```bash
+pnpm seed:super-admin
+```
+
+> The seeded admin user can be used to log into the frontend after setup.
+
+### Create or Generate Migrations
+
+```bash
+pnpm migration:create src/migrations/AddNewTable
+pnpm migration:generate src/migrations/SyncEntities
+```
 
 ---
 
-## Testing
+## 🧪 Testing & Code Quality
+
+### Run Tests
 
 ```bash
 pnpm test
@@ -198,63 +225,41 @@ pnpm test:watch
 pnpm test:cov
 ```
 
----
-
-## Linting & Formatting
+### Linting
 
 ```bash
 pnpm lint
+```
+
+### Formatting
+
+```bash
 pnpm format
 ```
 
 ---
 
-## Docker Commands
-
-```bash
-# Start services
-docker-compose up -d
-
-# Rebuild and start
-docker-compose up -d --build
-
-# Stop services
-docker-compose stop
-
-# Stop and remove containers
-docker-compose down
-
-# Stop and remove containers, networks, and volumes
-docker-compose down -v
-```
-
-### Access PostgreSQL in Docker
+## 🐘 Database Access (Docker)
 
 ```bash
 docker-compose exec postgres psql -U postgres -d gantt_db
 ```
 
--   Host: `localhost`
--   Port: `5432`
--   Username: `postgres`
--   Password: as in `.env`
--   Database: `gantt_db`
+Or connect via a client:
+
+```
+Host: localhost
+Port: 5432
+Database: gantt_db
+Username: postgres
+Password: postgres
+```
 
 ---
 
-## Notes
+## 🧭 Notes
 
--   **Database**:
-
-    -   Development: `synchronize=true` (auto-create tables)
-    -   Production: Use migrations
-
--   **CORS**: Configured for frontend origin
--   **Docker**:
-
-    -   Persistent PostgreSQL volume (`postgres_data`)
-    -   Backend waits for DB before starting
-
----
-
-This setup provides a **complete full-stack application**: backend API + frontend +
+-   **Migrations** must be run manually before starting the app.
+-   **Admin user** must be seeded manually using the provided command.
+-   **CORS** is configured for frontend integration.
+-   **Database data** persists across restarts via Docker volumes.

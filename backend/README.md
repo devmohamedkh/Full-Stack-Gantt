@@ -1,301 +1,99 @@
-# Gantt Chart Backend API
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-A NestJS backend API for managing activities in a Gantt chart application.
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Features
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-- RESTful API for CRUD operations on activities
-- PostgreSQL database with TypeORM
-- Input validation with class-validator
-- CORS enabled for frontend integration
-- Environment-based configuration
-- Swagger/OpenAPI documentation
+## Description
 
-## Prerequisites
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-### For Local Development
-
-- Node.js (v18 or higher)
-- pnpm (v10 or higher)
-- PostgreSQL (v12 or higher)
-
-### For Docker Development
-
-- Docker (v20 or higher)
-- Docker Compose (v2 or higher)
-
-## Setup
-
-### Option 1: Docker Compose (Recommended)
-
-The easiest way to run the entire stack (backend + PostgreSQL) is using Docker Compose.
-
-1. **Create a `.env` file** in the project root (optional, defaults are provided):
-
-```env
-# Database Configuration
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=gantt_db
-DB_PORT=5432
-
-# Application Configuration
-PORT=3000
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:3001
-```
-
-2. **Start the services**:
+## Project setup
 
 ```bash
-docker-compose up -d
+$ npm install
 ```
 
-This will:
-
-- Build the backend Docker image
-- Start PostgreSQL database
-- Start the backend API
-- Create persistent volumes for database data
-
-3. **View logs**:
+## Compile and run the project
 
 ```bash
-# All services
-docker-compose logs -f
+# development
+$ npm run start
 
-# Backend only
-docker-compose logs -f backend
+# watch mode
+$ npm run start:dev
 
-# PostgreSQL only
-docker-compose logs -f postgres
+# production mode
+$ npm run start:prod
 ```
 
-4. **Stop the services**:
+## Run tests
 
 ```bash
-docker-compose down
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
 ```
 
-5. **Stop and remove volumes** (clean slate):
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-docker-compose down -v
+$ npm install -g mau
+$ mau deploy
 ```
 
-The API will be available at `http://localhost:3000/api`
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-### Option 2: Local Development
+## Resources
 
-1. **Install Dependencies**
+Check out a few resources that may come in handy when working with NestJS:
 
-```bash
-cd backend
-pnpm install
-```
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-2. **Database Setup**
+## Support
 
-Create a PostgreSQL database:
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-```sql
-CREATE DATABASE gantt_db;
-```
+## Stay in touch
 
-3. **Environment Configuration**
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-Copy `.env.example` file in the `backend` directory and add your env.
+## License
 
-4. **Run the Application**
-
-Development mode:
-
-```bash
-pnpm start:dev
-```
-
-Production mode:
-
-```bash
-pnpm build
-pnpm start:prod
-```
-
-The API will be available at `http://localhost:3000/api`
-
-## API Documentation (Swagger)
-
-Once the application is running, you can access the interactive Swagger documentation at:
-
-**http://localhost:3000/docs**
-
-The Swagger UI provides:
-
-- Complete API endpoint documentation
-- Interactive API testing interface
-- Request/response schemas
-- Example requests and responses
-- Try-it-out functionality for all endpoints
-
-You can test all API endpoints directly from the Swagger interface without needing external tools like Postman.
-
-### Run Tests
-
-```bash
-pnpm test
-pnpm test:watch
-pnpm test:cov
-```
-
-### Linting
-
-```bash
-pnpm lint
-```
-
-### Formatting
-
-```bash
-pnpm format
-```
-
-## Database Migrations
-
-This project uses TypeORM migrations for database schema management. Migrations allow you to version control your database schema and apply changes in a controlled manner.
-
-### Migration Scripts
-
-```bash
-# Generate a new migration based on entity changes
-pnpm migration:generate
-
-# Create an empty migration file
-pnpm migration:create
-
-# Run pending migrations
-pnpm migration:run
-
-# Revert the last migration
-pnpm migration:revert
-
-# Show migration status
-pnpm migration:show
-
-# Run migrations in production (after build)
-pnpm migration:run:prod
-```
-
-### Creating a New Migration
-
-1. **Generate migration from entity changes:**
-
-   ```bash
-   pnpm migration:generate src/migrations/MigrationName
-   ```
-
-   This will compare your entities with the current database schema and generate the migration code.
-
-2. **Create an empty migration:**
-   ```bash
-   pnpm migration:create src/migrations/MigrationName
-   ```
-   Then manually write the `up()` and `down()` methods.
-
-### Running Migrations
-
-**Local Development:**
-
-```bash
-pnpm migration:run
-```
-
-**Production/Docker:**
-Migrations run automatically when `RUN_MIGRATIONS=true` is set in the environment. The Docker entrypoint script will run migrations before starting the application.
-
-**Manual Production Run:**
-
-```bash
-# After building
-pnpm build
-pnpm migration:run:prod
-```
-
-### Migration Files
-
-- Migration files are located in `src/migrations/`
-- Each migration file follows the naming pattern: `{timestamp}-{MigrationName}.ts`
-- Compiled migrations are output to `dist/migrations/`
-- The `migrations` table in the database tracks which migrations have been applied
-
-### Important Notes
-
-- **Development**: By default, `synchronize` is enabled for development, which auto-creates tables. Use migrations for production.
-- **Production**: Always use migrations in production. Set `DB_SYNCHRONIZE=false` and `RUN_MIGRATIONS=true`.
-- **Docker**: Migrations run automatically on container startup if `RUN_MIGRATIONS=true`.
-- **Backup**: Always backup your database before running migrations in production.
-
-## Docker Commands
-
-### Build and Start
-
-```bash
-# Start all services
-docker-compose up -d
-
-# Start and view logs
-docker-compose up
-
-# Rebuild and start
-docker-compose up -d --build
-```
-
-### Stop and Cleanup
-
-```bash
-# Stop services
-docker-compose stop
-
-# Stop and remove containers
-docker-compose down
-
-# Stop and remove containers, networks, and volumes
-docker-compose down -v
-```
-
-### Database Access
-
-```bash
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U postgres -d gantt_db
-
-# Or use any PostgreSQL client with:
-# Host: localhost
-# Port: 5432
-# Database: gantt_db
-# Username: postgres
-# Password: postgres (or your .env value)
-```
-
-### Backend Logs
-
-```bash
-# View logs
-docker-compose logs -f backend
-
-# View last 100 lines
-docker-compose logs --tail=100 backend
-```
-
-## Notes
-
-- **Database Schema Management**:
-  - Development: `synchronize` is enabled by default (auto-creates/updates tables)
-  - Production: Use migrations (`RUN_MIGRATIONS=true`, `DB_SYNCHRONIZE=false`)
-  - Migrations run automatically in Docker when `RUN_MIGRATIONS=true`
-- **CORS**: Configured to allow requests from the frontend URL specified in `.env`
-- **Docker**:
-  - Creates a persistent volume for PostgreSQL data
-  - Backend service waits for PostgreSQL to be healthy before starting
-  - Database data persists across container restarts (stored in `postgres_data` volume)
-  - Migrations execute automatically on container startup
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
