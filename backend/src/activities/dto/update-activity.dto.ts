@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { CreateActivityDto } from './create-activity.dto';
 
 /**
@@ -7,4 +7,3 @@ import { CreateActivityDto } from './create-activity.dto';
  * Useful for partial updates, especially for drag/resize operations on the Gantt chart.
  */
 export class UpdateActivityDto extends PartialType(CreateActivityDto) {}
-
