@@ -30,10 +30,10 @@ import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ActivityResponseDto } from './dto/activity-response.dto';
 import { ActivityStatus } from './entities/activity.entity';
 import { ActivityPaginationParamsDto } from './dto/pagination-params.dto';
-import { JwtAuthGuard } from 'src/auth/guard';
-import { User, UserRole } from 'src/users/entities/user.entity';
-import { CurrentUser, Roles } from 'src/common/decorators';
-import { RoleGuard } from 'src/common/guards/role.guard';
+import { JwtAuthGuard } from '../auth/guard';
+import { User, UserRole } from '../users/entities/user.entity';
+import { CurrentUser, Roles } from '../common/decorators';
+import { RoleGuard } from '../common/guards/role.guard';
 
 @ApiTags('activities')
 @UseGuards(JwtAuthGuard, RoleGuard)

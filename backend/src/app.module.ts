@@ -1,8 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ActivitiesModule } from './activities/activities.module';
 import databaseConfig from './config/database.config';
 import { UsersModule } from './users/users.module';
@@ -26,8 +24,8 @@ import { LoggerService } from './common/logger/logger.service';
     AuthModule,
     ActivitiesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, LoggerService],
+  controllers: [],
+  providers: [LoggerService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

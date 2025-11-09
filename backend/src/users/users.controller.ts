@@ -16,9 +16,9 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaginatedResponse } from '../common/base.service';
 import { PaginationParamsDto } from '../common/dto/pagination-params.dto';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { JwtAuthGuard } from 'src/auth/guard';
-import { CurrentUser, Roles } from 'src/common/decorators';
+import { RoleGuard } from '../common/guards/role.guard';
+import { JwtAuthGuard } from '../auth/guard';
+import { CurrentUser, Roles } from '../common/decorators';
 
 @ApiTags('users')
 @UseGuards(JwtAuthGuard, RoleGuard)

@@ -6,7 +6,7 @@ import { UsersService } from '../users/users.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { LoggerService } from '../common/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { instanceToPlain } from 'class-transformer';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
