@@ -6,7 +6,7 @@ export interface LoginRequest {
 export interface AuthUser {
     id: number;
     email: string;
-    role: string;
+    role: UserRole;
 }
 
 export interface AuthResponse {
@@ -21,4 +21,10 @@ export interface RefreshToken {
 
 export interface AccessToken {
     access_token: string;
+}
+
+export enum UserRole {
+    EMPLOYEE = "employee",
+    ADMIN = "admin",
+    SUPER_ADMIN = "super_admin",
 }

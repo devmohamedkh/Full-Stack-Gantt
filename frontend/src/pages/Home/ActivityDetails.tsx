@@ -1,7 +1,8 @@
 import { Drawer, Box, Typography, Chip, Divider, IconButton, Button } from '@mui/material';
 import { Close as CloseIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { type Task } from 'gantt-task-react';
-import { type Activity } from '../../types';
+import { UserRole, type Activity } from '../../types';
+import { useAuth } from '../../context';
 
 interface ActivityDetailsProps {
   open: boolean;
@@ -20,6 +21,8 @@ export const ActivityDetails = ({
   activity,
   onDelete,
 }: ActivityDetailsProps) => {
+  const { user } = useAuth()
+
   const handleDelete = () => {
     if (onDelete && task) {
       onDelete(task.id);
@@ -41,6 +44,9 @@ export const ActivityDetails = ({
         return 'default';
     }
   };
+
+  const canDoActions = user?.role !== UserRole.EMPLOYEE
+
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
@@ -154,7 +160,7 @@ export const ActivityDetails = ({
 
             <Divider sx={styles.dividerMy3} />
 
-            {onDelete && (
+            {onDelete && canDoActions && (
               <Button
                 variant="outlined"
                 color="error"

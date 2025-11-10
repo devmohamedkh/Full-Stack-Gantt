@@ -6,14 +6,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { GanttChart } from './GanttChart';
 import { ActivityForm } from './ActivityForm';
 import { ActivityDetails } from './ActivityDetails';
-import Header from '../../components/Header';
 import { useActivities } from '../../Hooks/useActivities';
 import { LoaderWithErrorHandling } from '../../components/LoaderWithErrorHandling';
 import GanttChartHeader from './GanttChartHeader';
 import NoDataFound from '../../components/NoDataFound';
 
 
-function Home() {
+function HomePage() {
     const {
         activities,
         loading,
@@ -42,7 +41,6 @@ function Home() {
 
     return (
         <Box sx={styles.container}>
-            <Header />
 
             <Container maxWidth={false} sx={{ flexGrow: 1, py: 3 }}>
                 <GanttChartHeader
@@ -113,4 +111,4 @@ const styles = {
     loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' },
     noDataFound: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }
 }
-export default Home;
+export default HomePage;

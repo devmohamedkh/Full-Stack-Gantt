@@ -8,8 +8,9 @@ import {
 
 import { Avatar, IconButton, Menu, MenuItem, Typography as MuiTypography, Box } from '@mui/material';
 import { useState, type MouseEvent } from 'react';
-import { useAuth } from '../context';
+import { useAuth } from '../../context';
 import { useNavigate } from 'react-router';
+import NavItems from './NavItems';
 
 
 
@@ -41,7 +42,7 @@ function Header() {
         <AppBar position="static" elevation={0}>
             <Toolbar sx={styles.toolbar}>
                 <Typography
-                    variant={isMobile ? "h6" : "h5"}
+                    variant={isMobile ? "button" : "h5"}
                     component="div"
                     sx={styles.title}
                     onClick={() => navigate('/')}
@@ -49,12 +50,14 @@ function Header() {
                     PROJECT MANAGEMENT
                 </Typography>
 
+                {user && (<NavItems />)}
+
                 {user &&
                     <Box sx={{ ml: { xs: 0, md: 2 } }}>
                         <IconButton
                             onClick={handleAvatarClick}
                             size="small"
-                            sx={{ ml: 2, bgcolor: '#0b4176' }}
+                            sx={{ ml: 2, bgcolor: 'rgba(0,0,0,0.08)' }}
                             aria-controls={open ? 'user-menu' : undefined}
                             aria-haspopup="true"
                             aria-expanded={open ? 'true' : undefined}
@@ -73,6 +76,7 @@ function Header() {
                                 sx: {
                                     mt: 1.5,
                                     minWidth: 180,
+                                    bgcolor: "#0b4176"
                                 },
                             }}
                             anchorOrigin={{

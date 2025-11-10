@@ -2,11 +2,11 @@ import {
   CssBaseline,
 } from '@mui/material';
 import { BrowserRouter, Route, Routes, } from "react-router";
-import { Home, Login, NotFoundPage } from './pages';
-import PrivetRoutes from './components/PrivetRoutes';
+import { HomePage, LoginPage, NotFoundPage, UsersPage } from './pages';
 import { AuthProvider } from './context/AuthContext';
-import UnAuthRoutes from './components/UnAuthRoutes';
 import { ToastContainer } from 'react-toastify';
+import { GuestOnlyRoutes, Header, PrivetRoutes } from './components/index';
+import { UserRole } from './types';
 
 function App() {
 
@@ -14,14 +14,22 @@ function App() {
     <BrowserRouter>
       <CssBaseline />
       <AuthProvider >
+        <Header />
+
         <Routes>
+
           <Route element={<PrivetRoutes />}>
-            <Route index element={<Home />} />
+            <Route index element={<HomePage />} />
           </Route>
-          <Route element={<UnAuthRoutes />}>
-            <Route path="login" element={<Login />} />
-            <Route path="signup" element={<Login />} />
+
+          <Route path='users' element={<PrivetRoutes allowRoles={[UserRole.ADMIN, UserRole.SUPER_ADMIN]} />}>
+            <Route index element={<UsersPage />} />
           </Route>
+
+          <Route element={<GuestOnlyRoutes />}>
+            <Route path="login" element={<LoginPage />} />
+          </Route>
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>

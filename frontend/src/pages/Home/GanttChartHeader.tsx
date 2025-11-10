@@ -7,9 +7,10 @@ import {
     Box,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { ActivityStatus } from '../../types';
+import { ActivityStatus, UserRole, } from '../../types';
 import type { ViewMode } from 'gantt-task-react';
 import { GanttChartView } from './GanttChartView';
+import { useAuth } from '../../context';
 
 type GanttChartHeaderProps = {
     handleDeleteActivity: (id: string) => void;
@@ -35,6 +36,10 @@ function GanttChartHeader({
     showGanttChartView
 }: GanttChartHeaderProps) {
 
+    const { user } = useAuth()
+
+    const canDoActions = user?.role !== UserRole.EMPLOYEE
+
     return (
         <Box sx={styles.toolbar}>
             <Box sx={styles.controlsBox}>
@@ -59,15 +64,17 @@ function GanttChartHeader({
                         <MenuItem value={ActivityStatus.BLOCKED}>Blocked</MenuItem>
                     </Select>
                 </FormControl>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={handleOpenCreateForm}
-                    sx={styles.newActivityBtn}
-                >
-                    {'New Activity'}
-                </Button>
-                {selectedActivity && (
+                {canDoActions &&
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={handleOpenCreateForm}
+                        sx={styles.newActivityBtn}
+                    >
+                        {'New Activity'}
+                    </Button>
+                }
+                {selectedActivity && canDoActions && (
                     <Box sx={styles.editDeleteBox}>
                         <Button
                             variant="outlined"

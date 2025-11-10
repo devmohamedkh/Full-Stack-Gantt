@@ -4,7 +4,7 @@ import LoginForm from './LoginForm';
 
 
 
-const Login = () => {
+const LoginPage = () => {
     return (
         <Container maxWidth="md" sx={styles.container}>
             <Box sx={styles.boxWrapper}>
@@ -63,4 +63,4 @@ const styles = {
     }
 };
 
-export default Login;
+export default LoginPage;

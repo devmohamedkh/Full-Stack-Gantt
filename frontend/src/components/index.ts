@@ -1,5 +1,5 @@
-export * from "./Header";
+export { default as Header } from "./Header";
 export * from "./LoaderWithErrorHandling";
-export * from "./NoDataFound";
-export * from "./PrivetRoutes";
-export * from "./UnAuthRoutes";
+export { default as NoDataFound } from "./NoDataFound";
+export { default as PrivetRoutes } from "./PrivetRoutes";
+export { default as GuestOnlyRoutes } from "./GuestOnlyRoutes";

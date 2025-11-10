@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import { Gantt, type Task, ViewMode } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
 
-import type { Activity } from '../../types';
+import { UserRole, type Activity } from '../../types';
 import { GanttChartTooltipContent } from './GanttChartTooltipContent';
+import { useAuth } from '../../context';
 
 interface GanttChartProps {
   activities: Activity[];
@@ -28,6 +29,9 @@ export const GanttChart = ({
   viewMode,
   selectedTask
 }: GanttChartProps) => {
+  const { user } = useAuth();
+  const canDoActions = user?.role === UserRole.EMPLOYEE
+
 
   const tasks: Task[] = useMemo(() => {
     const ax: Task[] = activities.map((activity) => ({
@@ -39,6 +43,7 @@ export const GanttChart = ({
       type: activity.type === 'milestone' ? 'milestone' : 'task',
       dependencies: activity.dependencies.map((dep) => dep.toString()),
       project: activity.type === 'milestone' ? undefined : activity.name,
+      isDisabled: canDoActions,
     }));
 
     // Add a fake (placeholder) task but set it with hidden flag so it does not show
@@ -57,7 +62,6 @@ export const GanttChart = ({
         backgroundSelectedColor: 'none',
         backgroundColor: 'none',
         progressColor: 'none'
-
       }
     });
     return ax
@@ -76,10 +80,18 @@ export const GanttChart = ({
     onTaskDelete(task.id);
   };
 
+  const handleDblClickWrap = (task: Task | null) => {
+    handleDblClick(task);
+  };
+
+  const handleExpanderClickWrap = (task: Task | null) => {
+    onExpanderClick(task);
+  };
 
   const handleSelect = (task: Task) => {
     onTaskSelect(task);
   };
+
 
   return (
     <Gantt
@@ -87,8 +99,8 @@ export const GanttChart = ({
       viewMode={viewMode}
       locale="en-US"
       onClick={onTaskClick}
-      onExpanderClick={onExpanderClick}
-      onDoubleClick={handleDblClick}
+      onExpanderClick={handleExpanderClickWrap}
+      onDoubleClick={handleDblClickWrap}
       onDateChange={handleDateChange}
       onProgressChange={handleProgressChange}
       onDelete={handleDelete}
@@ -104,4 +116,3 @@ export const GanttChart = ({
     />
   );
 };
-

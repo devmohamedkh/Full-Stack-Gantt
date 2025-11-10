@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context";
 import { LoaderWithErrorHandling } from "./LoaderWithErrorHandling";
 
-const UnAuthRoutes: React.FC = () => {
+const GuestOnlyRoutes: React.FC = () => {
     const { user, loading } = useAuth();
 
     if (loading) {
@@ -17,4 +17,4 @@ const UnAuthRoutes: React.FC = () => {
     return <Outlet />;
 };
 
-export default UnAuthRoutes;
+export default GuestOnlyRoutes;
